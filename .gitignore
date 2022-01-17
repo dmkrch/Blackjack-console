@@ -1,0 +1,12 @@
+#files with no extension (exe files)
+*
+!/**/
+!*.*
+
+!Makefile
+
+#objects files
+*.o
+
+#vscode
+.vscode/
