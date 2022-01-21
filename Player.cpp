@@ -1,5 +1,10 @@
 #include "Player.h"
 
+Player::Player() {
+
+}
+
+
 bool Player::AskCard() {
     
 }
