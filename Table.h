@@ -19,16 +19,25 @@ public:
     }
 
     void AddPlayer(Player p, int fd) {
-        std::cout << "Adding player " << p.getName() << " to table" << std::endl;
+        printLog("Adding player " + p.getName());
         _players.insert({fd, p});
     }
 
-    bool isPlayerCanBeAdded() {
-        return ((_players.size() < _maxPlayers) && (!_isRoundContinues));
+    void AddWaitingPlayer(Player p, int fd) {
+        printLog("Adding waiting player " + p.getName());
+        _waitingPlayers.insert({fd, p});
+    }
+
+     bool isRoundContinues() {
+        return _isRoundContinues;
     }
 
     bool isTableEmpty() {
         return _players.size() == 0;
+    }
+
+    bool isFreeSpace() {
+        return ((_players.size() + _waitingPlayers.size()) < _maxPlayers);
     }
 
     void startRound() {
@@ -52,10 +61,19 @@ public:
         while(_players.size() > 0) {
             // main logic of round here
             printLog("start of round");
-
             startRound();
             printLog("end of round");
 
+            // we should add waiting players to table if they exist
+            for (auto p:_waitingPlayers)
+                printLog("Adding waiting player" + p.second.getName() + " to round");
+            
+
+            _players.insert(_waitingPlayers.begin(), _waitingPlayers.end());
+            // and clean added waiting_players
+            _waitingPlayers.clear();
+
+            // now let new players connect if needed 
             if (_players.size() < _maxPlayers) {
                 _isRoundContinues = false;
                 printLog("waiting for new players...");

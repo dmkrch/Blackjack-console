@@ -36,14 +36,19 @@ public:
             bool playerWasAdded = false;
             // then we check if there is space in some table to sit
             for (int i = 0; i < _tables.size() && !playerWasAdded; ++i) {
-                if (_tables[i].isPlayerCanBeAdded()) {
-                    if (_tables[i].isTableEmpty()) {
-                        _tables[i].AddPlayer(p, player_fd);
-                        // and here start run in new thread
-                        _tables_threads.push_back(std::thread(&Table::run, &_tables[i]));
+                if (_tables[i].isFreeSpace()) {
+                    if (!_tables[i].isRoundContinues()) { // if round is not playing - just add player to table
+                        if (_tables[i].isTableEmpty()) {
+                            _tables[i].AddPlayer(p, player_fd);
+                            // and here start run in new thread
+                            _tables_threads.push_back(std::thread(&Table::run, &_tables[i]));
+                        }
+                        else {
+                            _tables[i].AddPlayer(p, player_fd);
+                        }
                     }
-                    else {
-                        _tables[i].AddPlayer(p, player_fd);
+                    else { // if round continues - add players to waiting
+                        _tables[i].AddWaitingPlayer(p, player_fd);
                     }
                     playerWasAdded = true;
                 }
