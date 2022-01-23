@@ -54,7 +54,7 @@ public:
             FD_CLR(fd, &masterfds); //clear the client fd from fd set
             return "error";
 	    }
-        return buffer;
+        return std::string(buffer);
     }
 
     //callback setters

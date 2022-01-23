@@ -42,13 +42,3 @@ iostream
 cstring
 -
 
-/home/dmkrch/Programming/Blackjack/Player/main.cpp
-iostream
--
-vector
--
-thread
--
-Client.hpp
-/home/dmkrch/Programming/Blackjack/Player/Client.hpp
-

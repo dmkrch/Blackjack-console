@@ -30,32 +30,11 @@ void Client::init() {
         printf("\n inet_pton error occured\n");
         return;
     }
-}
-
-void Client::run() { 
-    char buffer[BUFSIZE];
 
     /* now we can throw request of connecting to our server */
     check(connect(_clientSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)), 
         "Connect failed");
-
-    std::string name;
-    std::string bet;
-
-
-    // in that reply, server will ask us to write his name
-    std::cout << getReply(_clientSocket);
-    std::cin >> name;
-    sendMessage(_clientSocket, name.c_str());
-
-    // in that reply, server will ask us to write his name
-    std::cout << getReply(_clientSocket);
-    std::cin >> bet;
-    sendMessage(_clientSocket, bet.c_str());
-
-    while(true);
 }
-
 
 std::string Client::getReply(int fd) {
     char buffer[BUFSIZE];
@@ -74,8 +53,44 @@ std::string Client::getReply(int fd) {
         close(fd); //close connection to client
         return "error";
     }
-    return buffer;
+
+    std::string returnStr = std::string(buffer);
+    return returnStr;
 }
+
+
+void Client::getAndPrintServerMessage() {
+    std::cout << getReply(_clientSocket);
+}
+
+void Client::run() { 
+    char buffer[BUFSIZE];
+
+    std::string name;
+    std::string balance;
+    std::string bet;
+
+    // in that reply, server will ask us to write his name
+    getAndPrintServerMessage();
+    std::cin >> name;
+    sendMessage(_clientSocket, name.c_str());
+
+    // in that reply, server will ask us to write his balance
+    getAndPrintServerMessage();
+    std::cin >> balance;
+    sendMessage(_clientSocket, balance.c_str());
+
+    while(true) {
+        // start round info
+        getAndPrintServerMessage();
+
+        // get msg about making a bet
+        getAndPrintServerMessage();
+        std::cin >> bet;
+        sendMessage(_clientSocket, balance.c_str());
+    }
+}
+
 
 int Client::sendMessage(int fd, const char *messageBuffer) {
     return send(fd, messageBuffer,strlen(messageBuffer),0);

@@ -224,11 +224,11 @@ void Server::onDisconnect(void(*dc)(uint16_t))
 std::mutex sendMsgMutex;
 
 uint16_t Server::sendMessage(int fd, char *messageBuffer) {
-    const std::lock_guard<std::mutex> lock(sendMsgMutex);
+    // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer,strlen(messageBuffer),0);
 }
 
 uint16_t Server::sendMessage(int fd, const char *messageBuffer) {
-    const std::lock_guard<std::mutex> lock(sendMsgMutex);
+    // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer,strlen(messageBuffer),0);
 }

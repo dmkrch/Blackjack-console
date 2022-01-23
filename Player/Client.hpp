@@ -35,6 +35,7 @@ private:
     int check(int exp, const char* msg);
     std::string getReply(int fd);
     int sendMessage(int fd, const char *messageBuffer);
+    void getAndPrintServerMessage();
 
     int _clientSocket;
     sockaddr_in _serverAddr;

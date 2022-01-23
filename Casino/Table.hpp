@@ -16,6 +16,7 @@ public:
         _isRoundContinues = false;
         _maxPlayers = consts::maxPlayersPerTable;
         _server = server;
+        _roundNumber = 0;
     }
 
     void AddPlayer(Player p, int fd) {
@@ -41,14 +42,11 @@ public:
     }
 
     void startRound() {
-        printLog(std::to_string(_players.size()) + " players in starting room");
-        
-        std::string names;
-        for (auto pl : _players) {
-            names += pl.second.getName() + " ";
-        }
-        printLog("names: " + names);
+        ++_roundNumber;
+        printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
 
+
+        sendMsgToAllPlayers("Welcome to round #" + std::to_string(_roundNumber));
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
@@ -83,14 +81,15 @@ public:
         }
     }
 
-    void sendMsgToAllPlayers(const char* msg) {
+    void sendMsgToAllPlayers(std::string msg) {
         for (auto pair : _players) {
-            _server->sendMessage(pair.first, msg);
+            _server->sendMessage(pair.first, msg.c_str());
         }
     }
 
 private:
     int _tableId;
+    int _roundNumber;
     static int _counter;
     Server* _server;
     std::map<int, Player> _players;
