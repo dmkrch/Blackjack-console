@@ -1,0 +1,67 @@
+[
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/__/Common/Card.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/Card.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/Card.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/__/Common/CardDeck.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/CardDeck.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/CardDeck.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/__/Common/Player.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/Player.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/Player.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/Casino.cpp.o -c /home/dmkrch/Programming/Blackjack/Casino/Casino.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Casino/Casino.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/Croupier.cpp.o -c /home/dmkrch/Programming/Blackjack/Casino/Croupier.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Casino/Croupier.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/Server.cpp.o -c /home/dmkrch/Programming/Blackjack/Casino/Server.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Casino/Server.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/Table.cpp.o -c /home/dmkrch/Programming/Blackjack/Casino/Table.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Casino/Table.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Casino",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Casino/../Common  -g   -std=gnu++14 -o CMakeFiles/casino.dir/main.cpp.o -c /home/dmkrch/Programming/Blackjack/Casino/main.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Casino/main.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Player",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Player/../Common  -g   -std=gnu++14 -o CMakeFiles/player.dir/__/Common/Card.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/Card.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/Card.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Player",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Player/../Common  -g   -std=gnu++14 -o CMakeFiles/player.dir/__/Common/CardDeck.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/CardDeck.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/CardDeck.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Player",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Player/../Common  -g   -std=gnu++14 -o CMakeFiles/player.dir/__/Common/Player.cpp.o -c /home/dmkrch/Programming/Blackjack/Common/Player.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Common/Player.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Player",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Player/../Common  -g   -std=gnu++14 -o CMakeFiles/player.dir/Client.cpp.o -c /home/dmkrch/Programming/Blackjack/Player/Client.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Player/Client.cpp"
+},
+{
+  "directory": "/home/dmkrch/Programming/Blackjack/build/Player",
+  "command": "/bin/clang++-10   -I/home/dmkrch/Programming/Blackjack/Player/../Common  -g   -std=gnu++14 -o CMakeFiles/player.dir/main.cpp.o -c /home/dmkrch/Programming/Blackjack/Player/main.cpp",
+  "file": "/home/dmkrch/Programming/Blackjack/Player/main.cpp"
+}
+]
