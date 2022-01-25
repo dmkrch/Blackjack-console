@@ -28,5 +28,4 @@ void CasinoPlayer::run() {
 void CasinoPlayer::printReply() {
     std::cout.flush();
     std::cout << _client.getReply(); 
-    std::cout.flush();
 }
