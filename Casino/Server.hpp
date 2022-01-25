@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include <mutex>
+#include "Exception.hpp"
 
 #define INPUT_BUFFER_SIZE 100 //test: 100 bytes of buffer
 #define DEFAULT_PORT 9034
@@ -22,50 +23,18 @@ public:
     Server();
     Server(int port);
     virtual ~Server();
-    
-    struct Connector {
-        uint16_t source_fd;
-    };
-    
-    void shutdown();
-    void init();
-    int loopForWaitingNewPlayers();
-    void loop();
 
+    void init();
+    void shutdown();
+    int handleNewConnection();
     void closeConnection(int fd);
 
-    std::string getReply(int fd) {
-        char buffer[INPUT_BUFFER_SIZE];
-        int nbytesrecv = recv(fd, buffer, INPUT_BUFFER_SIZE, 0);
-        buffer[nbytesrecv] = '\0';
-
-        if (nbytesrecv <= 0) {
-            //problem
-            if (0 == nbytesrecv) {
-                disconnectCallback((uint16_t)fd);
-                close(fd); //well then, bye bye.
-                FD_CLR(fd, &masterfds);
-                return "error";
-            } 
-            else {
-                perror("[SERVER] [ERROR] recv() failed");
-            }
-            close(fd); //close connection to client
-            FD_CLR(fd, &masterfds); //clear the client fd from fd set
-            return "error";
-	    }
-        return std::string(buffer);
-    }
-
-    //callback setters
-    void onConnect(void (*ncc)(uint16_t fd));
-    void onInput(void (*rc)(uint16_t fd, char *buffer));
-    void onDisconnect(void (*dc)(uint16_t fd));
-
+    std::string getReply(int fd);
     uint16_t sendMessage(int fd, const char *messageBuffer);
     uint16_t sendMessage(int fd, char *messageBuffer);
 
 private:
+    std::mutex sendMsgMutex;
     //fd_set file descriptor sets for use with FD_ macros
     fd_set masterfds;
     fd_set tempfds;
@@ -84,20 +53,9 @@ private:
     //input buffer
     char input_buffer[INPUT_BUFFER_SIZE];
 
-    char remote_ip[INET6_ADDRSTRLEN];
-    //int numbytes;
-
-    void (*newConnectionCallback) (uint16_t fd);
-    void (*receiveCallback) (uint16_t fd, char *buffer);
-    void (*disconnectCallback) (uint16_t fd);
-
-
     //function prototypes
     void setup(int port);
     void initializeSocket();
     void bindSocket();
     void startListen();
-    void handleNewConnection();
-    int handleNewConnectionMy();
-    void recvInputFromExisting(int fd);
 };

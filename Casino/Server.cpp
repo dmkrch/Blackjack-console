@@ -15,6 +15,25 @@ Server::~Server()
 	close(mastersocket_fd);
 }
 
+
+std::string Server::getReply(int fd) {
+    char buffer[INPUT_BUFFER_SIZE];
+    int nbytesrecv = recv(fd, buffer, INPUT_BUFFER_SIZE, 0);
+    buffer[nbytesrecv] = '\0';
+
+    if (nbytesrecv == 0) {
+        closeConnection(fd);
+        throw Exception("o bytes received");
+    } 
+    else if (nbytesrecv < 0) {
+        closeConnection(fd);
+        throw Exception("<0 bytes recevied");
+    }
+
+    return std::string(buffer);
+}
+
+
 // setup of server doing some stuff: 
 void Server::setup(int port)
 {
@@ -70,26 +89,8 @@ void Server::shutdown()
 	int close_ret = close(mastersocket_fd);
 }
 
-void Server::handleNewConnection()
-{
-	socklen_t addrlen = sizeof (client_addr);
-	tempsocket_fd = accept(mastersocket_fd, (struct sockaddr*) &client_addr, &addrlen);
-    	
-	if (tempsocket_fd < 0) {
-        	perror("[SERVER] [ERROR] accept() failed");
-	} 
-	else {
-        // setting new connection descripton to set
-        FD_SET(tempsocket_fd, &masterfds);
-		//increment the maximum known file descriptor (select() needs it)
-        if (tempsocket_fd > maxfd) {
-            maxfd = tempsocket_fd;
-        }
-    }
-    //newConnectionCallback(tempsocket_fd); //call the callback
-}
 
-int Server::handleNewConnectionMy()
+int Server::handleNewConnection()
 {
 	socklen_t addrlen = sizeof (client_addr);
 	tempsocket_fd = accept(mastersocket_fd, (struct sockaddr*) &client_addr, &addrlen);
@@ -107,97 +108,13 @@ int Server::handleNewConnectionMy()
     }
 
     return tempsocket_fd;
-    //newConnectionCallback(tempsocket_fd); //call the callback
 }
 
 void Server::closeConnection(int fd) {
     close(fd); //close connection to client
 	FD_CLR(fd, &masterfds); //clear the client fd from fd set
-    return;
 }
 
-void Server::recvInputFromExisting(int fd)
-{
-    int nbytesrecv = recv(fd, input_buffer, INPUT_BUFFER_SIZE, 0);
-
-    if (nbytesrecv <= 0) {
-		//problem
-		if (0 == nbytesrecv) {
-			disconnectCallback((uint16_t)fd);
-			close(fd); //well then, bye bye.
-			FD_CLR(fd, &masterfds);
-			return;
-		} 
-		else {
-			perror("[SERVER] [ERROR] recv() failed");
-		}
-		close(fd); //close connection to client
-		FD_CLR(fd, &masterfds); //clear the client fd from fd set
-		return;
-	}
-    receiveCallback(fd,input_buffer);
-    std::cout << "message from client: " << input_buffer << std::endl;
-    bzero(&input_buffer,INPUT_BUFFER_SIZE); //clear input buffer
-}
-
-void Server::loop()
-{
-    tempfds = masterfds; //copy fd_set for select()
-
-    int sel = select(maxfd + 1, &tempfds, NULL, NULL, NULL); //blocks until activity
-
-    if (sel < 0) {
-        perror("[SERVER] [ERROR] select() failed");
-        shutdown();
-    }
-
-    //no problems, we're all set
-
-    //loop the fd_set and check which socket has interactions available
-    for (int i = 0; i <= maxfd; i++) {
-        if (FD_ISSET(i, &tempfds)) { //if the socket has activity pending
-            if (i == mastersocket_fd) { // means mastersocket is ready for reading. But it listens. So new conn coming
-                //new connection on master socket
-                handleNewConnection();
-            }
-        } //loop on to see if there is more
-    }
-
-    // loop the fd_set and check which socket has sent some data to server
-    for (int i = 0; i <= maxfd; i++) {
-        if (FD_ISSET(i, &tempfds)) { //if the socket has activity pending
-            if (i != mastersocket_fd) { // means mastersocket is ready for reading. But it listens. So new conn coming
-                //new connection on master socket
-                recvInputFromExisting(i);
-            }
-        } //loop on to see if there is more
-    }
-}
-
-int Server::loopForWaitingNewPlayers() {
-    int newConnFd = 0;
-    tempfds = masterfds; //copy fd_set for select()
-
-    int sel = select(maxfd + 1, &tempfds, NULL, NULL, NULL); //blocks until activity
-
-     if (sel < 0) {
-        perror("[SERVER] [ERROR] select() failed");
-        shutdown();
-    }
-
-    //no problems, we're all set
-    //loop the fd_set and check which socket has interactions available
-    for (int i = 0; i <= maxfd; i++) {
-        if (FD_ISSET(i, &tempfds)) { //if the socket has activity pending
-            if (i == mastersocket_fd) { // new connection comming
-                //new connection on master socket
-                newConnFd = handleNewConnectionMy();
-            }
-        }
-    }
-
-    return newConnFd;
-}
 
 void Server::init()
 {
@@ -205,23 +122,6 @@ void Server::init()
     bindSocket();
     startListen();
 }
-
-void Server::onInput(void (*rc)(uint16_t fd, char *buffer))
-{
-    receiveCallback = rc;
-}
-
-void Server::onConnect(void(*ncc)(uint16_t))
-{
-    newConnectionCallback = ncc;
-}
-
-void Server::onDisconnect(void(*dc)(uint16_t))
-{
-    disconnectCallback = dc;
-}
-
-std::mutex sendMsgMutex;
 
 uint16_t Server::sendMessage(int fd, char *messageBuffer) {
     // const std::lock_guard<std::mutex> lock(sendMsgMutex);
