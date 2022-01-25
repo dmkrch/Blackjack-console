@@ -2,12 +2,13 @@
 #include <vector>
 #include <thread>
 #include "Client.hpp"
+#include "CasinoPlayer.hpp"
 
 int main() {
     try
     {
-        Client cl;
-        cl.run();
+        CasinoPlayer player;
+        player.run();
            
         return 0;
     }
