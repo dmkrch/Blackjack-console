@@ -6,7 +6,6 @@
 class CasinoPlayer {
 public:
     CasinoPlayer();
-
     void run();
 
 private:

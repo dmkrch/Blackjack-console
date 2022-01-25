@@ -1,8 +1,6 @@
 #include "CasinoPlayer.hpp"
 
-CasinoPlayer::CasinoPlayer() {
-    Client cl;  
-}
+CasinoPlayer::CasinoPlayer() { }
 
 void CasinoPlayer::run() {
     char buffer[BUFSIZE];
@@ -24,14 +22,11 @@ void CasinoPlayer::run() {
     while(true) {
         // get start round info
         printReply();
-
-        // get msg about making a bet
-        printReply();
-        std::cin >> bet;
-        _client.sendMessage(balance.c_str());
     }
 }
 
 void CasinoPlayer::printReply() {
-    std::cout << _client.getReply() << std::endl; 
+    std::cout.flush();
+    std::cout << _client.getReply(); 
+    std::cout.flush();
 }
