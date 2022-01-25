@@ -60,7 +60,8 @@ std::string Client::getReply(int fd) {
 
 
 void Client::getAndPrintServerMessage() {
-    std::cout << getReply(_clientSocket);
+    // TODO: fflush 
+    std::cout << getReply(_clientSocket) << std::endl;
 }
 
 void Client::run() { 
