@@ -1,12 +1,11 @@
 enum class CARD_RANK {
-    ONE = 1,
-    TWO,
+    TWO = 2,
     THREE, 
     FOUR,
     FIVE,
     SIX,
     SEVEN,
-    EIGH,
+    EIGHT,
     NINE,
     TEN, 
     JACK = 10,
@@ -25,6 +24,8 @@ enum class CARD_SUIT {
 
 class Card {
 public:
+    Card(CARD_RANK r, CARD_SUIT s);
+    Card(CARD_RANK r);
     int GetValue();
 private:
     CARD_RANK _rank;

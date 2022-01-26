@@ -30,6 +30,8 @@ public:
 
     std::string getReply();
     int sendMessage(const char *messageBuffer);
+    int sendMessage(std::string messageBuffer);
+    int getClientSocket() const { return _clientSocket; }
 
 private:
     void init();

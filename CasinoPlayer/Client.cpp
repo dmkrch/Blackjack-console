@@ -59,3 +59,7 @@ std::string Client::getReply() {
 int Client::sendMessage(const char *messageBuffer) {
     return send(_clientSocket, messageBuffer, strlen(messageBuffer), 0);
 }
+
+int Client::sendMessage(std::string messageBuffer) {
+    return send(_clientSocket, messageBuffer.c_str(), messageBuffer.size(), 0);
+}

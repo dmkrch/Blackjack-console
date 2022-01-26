@@ -1,5 +1,10 @@
 #include "Table.hpp"
 
+int Table::_counter = 1;
+std::mutex addPlayerMutex;
+std::mutex addWaitPlayerMutex;
+
+
 Table::Table(Server* server) {
     _tableId = _counter++;
 
@@ -11,11 +16,13 @@ Table::Table(Server* server) {
 
 void Table::AddPlayer(Player p, int fd) {
     printLog("Adding player " + p.getName());
+    //const std::lock_guard<std::mutex> lock(addWaitPlayerMutex);
     _players.insert({fd, p});
 }
 
 void Table::AddWaitingPlayer(Player p, int fd) {
     printLog("Adding waiting player " + p.getName());
+    //const std::lock_guard<std::mutex> lock(addPlayerMutex);
     _waitingPlayers.insert({fd, p});
 }
 
@@ -35,12 +42,23 @@ void Table::startRound() {
     ++_roundNumber;
     printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
 
+    std::stringstream ss;
+    ss << "Welcome to round #" << std::to_string(_roundNumber) << std::endl;
+    ss << "Enter your bet for round: ";
+    sendMsgToAllPlayers(ss.str());
+    
+    for (auto player : _players) {
+        int fd = player.first;
+        std::string bet = _server->getReply(fd);
+        std::cout.flush();
+        std::cout << "\tplayer " << player.second.getName() << " made bet " << bet << std::endl;
+    }
 
-    sendMsgToAllPlayers("Welcome to round #" + std::to_string(_roundNumber));
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 }
 
 void Table::printLog(std::string msg) {
+    std::cout.flush();
     std::cout << "Table #" << _tableId << ": " << msg << std::endl;
 }
 
@@ -51,15 +69,17 @@ void Table::run() {
         printLog("start of round");
         startRound();
         printLog("end of round");
-
-        // we should add waiting players to table if they exist
-        for (auto p:_waitingPlayers)
-            printLog("Adding waiting player" + p.second.getName() + " to round");
         
+        // if there are waiting players - time to add them to actual players
+        if (_waitingPlayers.size() > 0) {
+            // we should add waiting players to table if they exist
+            for (auto p:_waitingPlayers)
+                printLog("Adding waiting player" + p.second.getName() + " to round");
 
-        _players.insert(_waitingPlayers.begin(), _waitingPlayers.end());
-        // and clean added waiting_players
-        _waitingPlayers.clear();
+            _players.insert(_waitingPlayers.begin(), _waitingPlayers.end());
+            // and clean added waiting_players
+            _waitingPlayers.clear();
+        }
 
         // now let new players connect if needed 
         if (_players.size() < _maxPlayers) {
@@ -76,5 +96,3 @@ void Table::sendMsgToAllPlayers(std::string msg) {
         _server->sendMessage(pair.first, msg.c_str());
     }
 }
-
-int Table::_counter = 1;

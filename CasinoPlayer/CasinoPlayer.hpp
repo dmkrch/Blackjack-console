@@ -6,6 +6,10 @@
 class CasinoPlayer {
 public:
     CasinoPlayer();
+    ~CasinoPlayer() {
+        std::cout << "~CasinoPlayer" << std::endl;
+        close(_client.getClientSocket());
+    }
     void run();
 
 private:

@@ -23,7 +23,7 @@ std::string Server::getReply(int fd) {
 
     if (nbytesrecv == 0) {
         closeConnection(fd);
-        throw Exception("o bytes received");
+        throw Exception("0 bytes received");
     } 
     else if (nbytesrecv < 0) {
         closeConnection(fd);

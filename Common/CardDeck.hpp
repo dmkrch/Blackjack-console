@@ -1,4 +1,7 @@
 #include <vector>
+#include <algorithm>
+#include <random>
+
 #include "Card.hpp"
 
 class CardDeck {
