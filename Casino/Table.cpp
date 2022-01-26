@@ -85,19 +85,23 @@ void Table::startRound() {
     ss << "Enter your bet for round: ";
     sendMsgToAllPlayers(ss.str());
     
-    for (auto player : _players) {
-        int fd = player.first;
-        std::string bet = _server->getReply(fd);
+    for (auto& pl : _players) {
+        int fd = pl.first;
+        int bet = stoi(_server->getReply(fd));
         std::cout.flush();
-        std::cout << "\tplayer " << player.second.getName() << " made bet " << bet << std::endl;
+        std::cout << "\tplayer " << pl.second.getName() << " made bet " << bet << std::endl;
+
+        // and minusing balance by bet value and put it to bet
+        pl.second.setBalance(pl.second.getBalance() - bet);
+        pl.second.setBet(bet);
     }
 
     // now when all bets are done, giving everyone 2 cards
-    for (auto& p : _players) {
+    for (auto& pl : _players) {
         Card card = _shoeDeck.getTopCard();
-        p.second.putCard(card);
+        pl.second.putCard(card);
         card = _shoeDeck.getTopCard();
-        p.second.putCard(card);
+        pl.second.putCard(card);
     }
 
     // giving croupier 2 cards
@@ -116,14 +120,48 @@ void Table::startRound() {
     }
 
     // now we need to check if someone has blackjack
-    
-    // // now we need to bypass every player and ask if he takes card or not
-    // for (auto pl : _players) {
-    //     std::string askTakeOrPass = "Do you want to take card or pass?";
-    //     askTakeOrPass += "\n";
-    //     askTakeOrPass += "1. take   2. pass";
 
+    // TODO: do till the end
+    // // if croupier has blackjack
+    // if (_croupier.getCardsSum() == 21) {
+    //     for (auto& pl : _players) {
+    //         if (pl.second.getCardsSum() == 21) {
+    //             _server->sendMessage(pl.first, "Tie with croupie, you both have blackjack. You keep your bet\n");
+    //         }
+    //         else {
+    //             _server->sendMessage(pl.first, "Croupier has blackjack. You lost your bet\n");
+    //         }
+    //     }
     // }
+    // else {
+    //     // here we check if player has blackjack
+    //     for (auto& pl : _players) {
+    //         if (pl.second.getCardsSum() == 21) {
+    //             _server->sendMessage(pl.first, "You have blackjack! You win x2.5 of your bet\n");
+    //             pl.second.setRoundPlayingState(false);
+    //         }
+    //     }
+    // }
+
+
+    //main logic: players that play round (isPlayingRoundState) take card or pass
+
+
+    // now we need to bypass every player and ask if he takes card or not
+    for (auto& pl : _players) {
+        // send message to other players to wait until he will do his turn
+        for (auto otherPl : _players) {
+            if (otherPl.first != pl.first) {
+                std::string notifyOtherPl = "Wait, player " + pl.second.getName() + " is doing his turn...\n";
+                _server->sendMessage(otherPl.first, notifyOtherPl);
+            }
+        }
+
+        std::string askTakeOrPass = "\nDo you want to take card or pass?";
+        askTakeOrPass += "\n";
+        askTakeOrPass += "1. take   2. pass  ";
+        _server->sendMessage(pl.first, askTakeOrPass);
+    }
 }
 
 void Table::printLog(std::string msg) {

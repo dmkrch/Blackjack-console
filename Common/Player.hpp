@@ -24,6 +24,8 @@ public:
     int getBalance() const { return _balance; }
     int getCardsAmount() const { return _cards.size(); }
     int getCardsSum();
+    int isPlayingRoundState() const { return _isPlaying; }
+    void setRoundPlayingState(bool state) { _isPlaying = state; }
     std::string getCardsStr();
 private:
     std::vector<Card> _cards;

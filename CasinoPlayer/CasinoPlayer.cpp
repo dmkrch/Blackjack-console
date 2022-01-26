@@ -25,20 +25,24 @@ void CasinoPlayer::run() {
         printReply();
 
         // get bet info
-        std::string bet;
+        int bet;
         // send bet and check if not more than balance to opened socket
         std::cin >> bet;
-        while(std::stoi(bet) > _player.getBalance()) {
+        while(bet > _player.getBalance()) {
             std::cout << "Your balance: " << _player.getBalance() << "$ is less" << std::endl;
             std::cout << "Enter right bet: ";
             std::cin >> bet;
         }
-        _player.setBet(stoi(bet));
-        _player.setBalance(_player.getBalance() - stoi(bet));
-        _client.sendMessage(bet);
+        _player.setBet(bet);
+        _player.setBalance(_player.getBalance() - bet);
+        _client.sendMessage(std::to_string(bet));
 
-    
+
         // get cards info
+        printReply();
+
+        // now here we can get either pass or take, or waiting for others message
+        printReply();
         printReply();
     }
 
