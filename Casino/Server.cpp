@@ -132,3 +132,9 @@ uint16_t Server::sendMessage(int fd, const char *messageBuffer) {
     // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer,strlen(messageBuffer),0);
 }
+
+uint16_t Server::sendMessage(int fd, std::string messageBuffer) {
+    // const std::lock_guard<std::mutex> lock(sendMsgMutex);
+    return send(fd, messageBuffer.c_str(), messageBuffer.size(), 0);
+}
+

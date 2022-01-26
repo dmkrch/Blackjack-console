@@ -4,6 +4,8 @@
 #include "Consts.hpp"
 #include <vector>
 #include <string>
+#include <sstream>
+#include <numeric>
 
 class Player {
 public:
@@ -21,6 +23,8 @@ public:
     int getBet() const { return _currentBet; }
     int getBalance() const { return _balance; }
     int getCardsAmount() const { return _cards.size(); }
+    int getCardsSum();
+    std::string getCardsStr();
 private:
     std::vector<Card> _cards;
     std::string _name;

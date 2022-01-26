@@ -38,20 +38,50 @@ bool Table::isFreeSpace() {
     return ((_players.size() + _waitingPlayers.size()) < _maxPlayers);
 }
 
-void Table::startRound() {
-    for (auto pl : _players) {
+void Table::throwAwayPreviousCards() {
+    for (auto& pl : _players) {
         if (pl.second.getCardsAmount() > 0)
             pl.second.throwCards();
     }
 
     if (_croupier.getCardsAmount() > 0)
         _croupier.throwCards();
+}
 
+
+std::string Table::getCardsInfoForPlayer(std::pair<int, Player> playerToSend) {
+    int fd = playerToSend.first;
+    // cards of all players first
+    std::stringstream ss;
+    ss << std::endl;
+
+    for (auto otherPlayer : _players) {
+        // take info about other players' cards
+        if (playerToSend.first != otherPlayer.first)
+            ss << otherPlayer.second.getName() << " cards: " << otherPlayer.second.getCardsStr() << "  ";
+    }
+
+    // take info about cards of croupier
+    ss << std::endl << "croupier cards: " << _croupier.getStartRoundCardsStr() << std::endl;
+
+    // take info about cards of certain player
+    ss << "your cards: " << playerToSend.second.getCardsStr() << std::endl;
+
+    return ss.str();
+}
+
+
+void Table::startRound() {
+    // some init before starting round
     ++_roundNumber;
+    throwAwayPreviousCards();
+
+    // log for server
     printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
 
+    // send start round info and make bet
     std::stringstream ss;
-    ss << "Welcome to round #" << std::to_string(_roundNumber) << std::endl;
+    ss << "----------------ROUND #" << _roundNumber << "--------------" << std::endl << std::endl;
     ss << "Enter your bet for round: ";
     sendMsgToAllPlayers(ss.str());
     
@@ -78,14 +108,22 @@ void Table::startRound() {
 
 
     // now we need to send the information to all clients
-    for (auto p : _players) {
-        int fd = p.first;
-        // cards of all players first
-        // cards of croupier
-        // cards of certain player
+    for (auto pl : _players) {
+        std::string cardsInfo = getCardsInfoForPlayer(pl);
+
+        // now send info about other players' cards, croupier and his(pl) cards to pl
+        _server->sendMessage(pl.first, cardsInfo);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    // now we need to check if someone has blackjack
+    
+    // // now we need to bypass every player and ask if he takes card or not
+    // for (auto pl : _players) {
+    //     std::string askTakeOrPass = "Do you want to take card or pass?";
+    //     askTakeOrPass += "\n";
+    //     askTakeOrPass += "1. take   2. pass";
+
+    // }
 }
 
 void Table::printLog(std::string msg) {
@@ -118,7 +156,7 @@ void Table::run() {
         if (_players.size() < _maxPlayers) {
             _isRoundContinues = false;
             printLog("waiting for new players...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
             _isRoundContinues = true;
         }
     }
@@ -126,6 +164,6 @@ void Table::run() {
 
 void Table::sendMsgToAllPlayers(std::string msg) {
     for (auto pair : _players) {
-        _server->sendMessage(pair.first, msg.c_str());
+        _server->sendMessage(pair.first, msg);
     }
 }

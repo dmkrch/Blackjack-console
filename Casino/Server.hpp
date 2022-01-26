@@ -32,6 +32,7 @@ public:
     std::string getReply(int fd);
     uint16_t sendMessage(int fd, const char *messageBuffer);
     uint16_t sendMessage(int fd, char *messageBuffer);
+    uint16_t sendMessage(int fd, std::string messageBuffer);
 
 private:
     std::mutex sendMsgMutex;

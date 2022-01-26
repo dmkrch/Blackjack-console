@@ -36,6 +36,10 @@ void CasinoPlayer::run() {
         _player.setBet(stoi(bet));
         _player.setBalance(_player.getBalance() - stoi(bet));
         _client.sendMessage(bet);
+
+    
+        // get cards info
+        printReply();
     }
 
     if (_player.getBalance() == 0) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum class CARD_RANK {
     TWO = 2,
     THREE, 
@@ -10,10 +12,10 @@ enum class CARD_RANK {
     EIGHT,
     NINE,
     TEN, 
-    JACK = 10,
-    QUEEN = 10,
-    KING = 10,
-    ACE = 11
+    JACK,
+    QUEEN,
+    KING,
+    ACE
 };
 
 enum class CARD_SUIT {
@@ -28,7 +30,10 @@ class Card {
 public:
     Card(CARD_RANK r, CARD_SUIT s);
     Card(CARD_RANK r);
-    int GetValue();
+    
+    int getValue();
+    CARD_RANK getCardRank() const { return _rank; }
+    std::string getCardStr();
 private:
     CARD_RANK _rank;
     CARD_SUIT _suit;
