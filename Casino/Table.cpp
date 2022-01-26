@@ -1,12 +1,12 @@
 #include "Table.hpp"
 
-int Table::_counter = 1;
+
 std::mutex addPlayerMutex;
 std::mutex addWaitPlayerMutex;
+int Table::_roundCounter = 1;
 
-
-Table::Table(Server* server) {
-    _tableId = _counter++;
+Table::Table(Server* server) : _shoeDeck{ShoeDeck(consts::shoeDecks)} {
+    _tableId = _roundCounter++;
 
     _isRoundContinues = false;
     _maxPlayers = consts::maxPlayersPerTable;
@@ -39,6 +39,14 @@ bool Table::isFreeSpace() {
 }
 
 void Table::startRound() {
+    for (auto pl : _players) {
+        if (pl.second.getCardsAmount() > 0)
+            pl.second.throwCards();
+    }
+
+    if (_croupier.getCardsAmount() > 0)
+        _croupier.throwCards();
+
     ++_roundNumber;
     printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
 
@@ -54,6 +62,29 @@ void Table::startRound() {
         std::cout << "\tplayer " << player.second.getName() << " made bet " << bet << std::endl;
     }
 
+    // now when all bets are done, giving everyone 2 cards
+    for (auto& p : _players) {
+        Card card = _shoeDeck.getTopCard();
+        p.second.putCard(card);
+        card = _shoeDeck.getTopCard();
+        p.second.putCard(card);
+    }
+
+    // giving croupier 2 cards
+    Card card = _shoeDeck.getTopCard();
+    _croupier.putCard(card);
+    card = _shoeDeck.getTopCard();
+    _croupier.putCard(card);
+
+
+    // now we need to send the information to all clients
+    for (auto p : _players) {
+        int fd = p.first;
+        // cards of all players first
+        // cards of croupier
+        // cards of certain player
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 }
 
@@ -67,7 +98,9 @@ void Table::run() {
     while(_players.size() > 0) {
         // main logic of round here
         printLog("start of round");
+        _isRoundContinues = true;
         startRound();
+        _isRoundContinues = false;
         printLog("end of round");
         
         // if there are waiting players - time to add them to actual players
@@ -85,7 +118,7 @@ void Table::run() {
         if (_players.size() < _maxPlayers) {
             _isRoundContinues = false;
             printLog("waiting for new players...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
             _isRoundContinues = true;
         }
     }

@@ -3,6 +3,9 @@
 #include "Server.hpp"
 #include "Player.hpp"
 #include "Croupier.hpp"
+#include "ShoeDeck.hpp"
+#include "CardDeck.hpp"
+#include "Consts.hpp"
 
 #include <map>
 #include <chrono>
@@ -25,17 +28,20 @@ public:
     bool isFreeSpace();
 
 private:
+    ShoeDeck _shoeDeck;
+
     void startRound();
     void printLog(std::string msg);
     void sendMsgToAllPlayers(std::string msg);
 
-    int _tableId;
-    int _roundNumber;
-    static int _counter;
     Server* _server;
     std::map<int, Player> _players;
     std::map<int, Player> _waitingPlayers;
     Croupier _croupier;
+
+    int _tableId;
+    int _roundNumber;
+    static int _roundCounter;
     int _maxPlayers;
     bool _isRoundContinues;
 };

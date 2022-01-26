@@ -1,3 +1,5 @@
+#pragma once
+
 enum class CARD_RANK {
     TWO = 2,
     THREE, 

@@ -2,6 +2,7 @@
 
 auto rng = std::default_random_engine {};
 
+// accepts int - amount of decks that should be in one deck
 CardDeck::CardDeck() {
     std::vector<CARD_RANK> ranks;
     ranks.push_back(CARD_RANK::TWO); // 0 index
@@ -18,6 +19,7 @@ CardDeck::CardDeck() {
     ranks.push_back(CARD_RANK::KING);
     ranks.push_back(CARD_RANK::ACE); // 12 index
 
+    // that cycle puts 52 cards: 4 twos, 4 threes, ... 4 aces
     for (int i = 0; i < 13; ++i) {
         CARD_RANK r = ranks[i];
         // in r we have ranks that me need to add to deck
@@ -41,4 +43,10 @@ Card CardDeck::GetTopCard() {
     Card card = _cards.back();
     _cards.pop_back();
     return card;
+}
+
+// just inserts cards of deck2 into this->deck
+CardDeck CardDeck::operator+(const CardDeck& deck2) {
+    this->_cards.insert(this->_cards.end(), deck2._cards.begin(), deck2._cards.end());
+    return *this;
 }
