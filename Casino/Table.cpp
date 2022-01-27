@@ -133,30 +133,37 @@ void Table::startRound() {
 
     // TODO: check for blackjack combination
 
-    for (auto& pl : _players) {
-        // // send message to other players to wait until he will do his turn
-        // for (const auto& otherPl : _players) {
-        //     if (otherPl.first != pl.first) {
-        //         std::string notifyOtherPl = "<1> Wait, player " + pl.second.getName() + " is doing his turn...\n";
+    
 
-        //         _server->sendMessage(otherPl.first, notifyOtherPl);
-        //     }
-        // }
+    for (auto& pl : _players) {
+        // send message to other players to wait until he will do his turn
+        for (const auto& otherPl : _players) {
+            if (otherPl.first != pl.first) {
+                std::string notifyOtherPl = "<1> Wait, player " + pl.second.getName() + " is doing his turn...\n";
+
+                _server->sendMessage(otherPl.first, notifyOtherPl);
+            }
+        }
+
+        // means that starting player taking card or passing logic
+        std::string yourTurn("Your turn!\n");
+        _server->getReply(pl.first); // this because 2 sends can't be byside
+        _server->sendMessage(pl.first, yourTurn); // <0> message TO player
 
         while(!pl.second.hasPassed()) {
             std::string askTakeOrPass = "\nDo you want to take card or pass?";
             askTakeOrPass += "\n";
             askTakeOrPass += "1. take   2. pass  ";
             _server->getReply(pl.first); // this because 2 sends can't be byside
-            _server->sendMessage(pl.first, askTakeOrPass);
-            std::string reply = _server->getReply(pl.first);
+            _server->sendMessage(pl.first, askTakeOrPass); // <1> message TO player
+            std::string playerChoice = _server->getReply(pl.first); // <2> message FROM player
 
-            if (reply == "1") {
+            if (playerChoice == "1") {
                 // take card
                 Card card = _shoeDeck.getTopCard();
                 pl.second.putCard(card);
 
-                ss.str("");;
+                ss.str("");
                 ss << std::endl << "you've taken " << card.getCardStr() << std::endl;
                 ss << "your cards are: " << pl.second.getCardsStr() << std::endl;
 
@@ -171,16 +178,17 @@ void Table::startRound() {
                     pl.second.setPassState(true);
                 }
                 // sends: you've taken __ \n your cards are: __ \n sum of cards > 21 || sum of cards = 21 || nothing
-                _server->sendMessage(pl.first, ss.str()); 
             }
-            else if (reply == "2") {
+            else if (playerChoice == "2") {
                 // pass
                 pl.second.setPassState(true);
                 ss.str("");
                 ss << "you've passed" << std::endl;
-                _server->sendMessage(pl.first, ss.str());
             }
 
+            _server->sendMessage(pl.first, ss.str()); // <3> message TO player
+
+            // now send another message to player - he is passing or playing
             _server->getReply(pl.first); // this because 2 replies can't be byside
             if (pl.second.hasPassed())
                 _server->sendMessage(pl.first, "pass");

@@ -41,18 +41,24 @@ void CasinoPlayer::run() {
         // get info about self' and others' cards
         printReply();
 
-        std::string temp = "t";
-        std::string reply = "";
-        std::string turn;
 
-        while(reply != "pass") {
+
+        std::string temp = "t";
+        _client.sendMessage(temp); // this because 2 replies can't be byside
+        std::cout << _client.getReply(); // <0> message FROM casino
+
+        std::string passOrPlay = "";
+        std::string playerChoice;
+
+        // get info about taking or pass
+        while(passOrPlay != "pass") {
             _client.sendMessage(temp); // this because 2 replies can't be byside
-            printReply(); // prints 1. take 2. pass
-            std::cin >> turn;
-            _client.sendMessage(turn);
-            printReply(); // prints // you've taken card... your cards are... you have 21 and u pass..
+            printReply(); // <1> message FROM casino
+            std::cin >> playerChoice;
+            _client.sendMessage(playerChoice); // <2> message TO casino
+            printReply(); // <3> message FROM casino
             _client.sendMessage(temp); // this because 2 replies can't be byside
-            reply = _client.getReply(); // pass or play
+            passOrPlay = _client.getReply(); // <4> message FROM casino
         }
     }
 
