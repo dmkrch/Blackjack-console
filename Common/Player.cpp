@@ -1,19 +1,8 @@
 #include "Player.hpp"
 
 Player::Player() {
-
-}
-
-bool Player::AskCard() {
-    return true;
-}
-
-bool Player::AskPass() {
-    return true;
-}
-
-bool Player::AskBet() {
-    return true;
+    _hasPassed = false;
+    _hasWon = false;
 }
 
 std::string Player::getCardsStr() {
@@ -25,7 +14,7 @@ std::string Player::getCardsStr() {
     return ss.str();
 }
 
-int Player::getCardsSum() {
+int Player::getCardsSum() const {
     int sum = 0;
     int amountOfAces = 0;
 
@@ -39,12 +28,13 @@ int Player::getCardsSum() {
             ++amountOfAces;
     }
 
-    // then adding aces one by one, so that sum will not exceed 21 points
+    // then adding aces one by one
     while(amountOfAces-- > 0) {
         if (sum + 11 <= 21)
             sum += 11;
-        else 
-            break;
+        else {
+            sum += 1;
+        }
     }
 
     return sum;

@@ -32,6 +32,7 @@ public:
     int sendMessage(const char *messageBuffer);
     int sendMessage(std::string messageBuffer);
     int getClientSocket() const { return _clientSocket; }
+    void disconnect() { close(_clientSocket); }
 
 private:
     void init();

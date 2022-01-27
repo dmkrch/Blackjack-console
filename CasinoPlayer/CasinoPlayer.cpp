@@ -38,13 +38,31 @@ void CasinoPlayer::run() {
         _client.sendMessage(std::to_string(bet));
 
 
-        // get cards info
+        // get info about self' and others' cards
         printReply();
 
         // now here we can get either pass or take, or waiting for others message
-        printReply();
-        printReply();
+        // for that, we should extract tag before reply in <> brackets
+
+        // std::strint _client.getReply()
+
+        // first make only looped replies about taking card or not
+
+        std::string reply = "";
+        std::string turn;
+
+        while(reply != "pass") {
+            _client.sendMessage("<>take or pass");
+            printReply(); // prints 1. take 2. pass
+            std::cin >> turn;
+            _client.sendMessage(turn);
+            printReply(); // prints // you've taken card... your cards are... you have 21 and u pass..
+            _client.sendMessage("<>get state");
+            reply = _client.getReply(); // pass or play
+        }
     }
+
+
 
     if (_player.getBalance() == 0) {
         std::cout << "you lost all money!" << std::endl;
@@ -53,5 +71,13 @@ void CasinoPlayer::run() {
 
 void CasinoPlayer::printReply() {
     std::cout << _client.getReply(); 
-      std::cout.flush();
+    std::cout.flush();
+}
+
+int CasinoPlayer::getMsgId(std::string str) {
+
+}
+
+void CasinoPlayer::stopPlaying() {
+    _client.disconnect();
 }

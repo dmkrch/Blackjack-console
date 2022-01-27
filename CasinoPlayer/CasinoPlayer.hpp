@@ -13,9 +13,11 @@ public:
     void run();
 
 private:
+    void stopPlaying();
     void printReply();
     Client _client;
     Player _player;
+    int getMsgId(std::string);
 };
 
 

@@ -70,11 +70,20 @@ std::string Table::getCardsInfoForPlayer(std::pair<int, Player> playerToSend) {
     return ss.str();
 }
 
+void Table::setPlayersState() {
+    for (auto& p : _players) {
+        p.second.setPassState(false);
+        p.second.setLoseState(false);
+        p.second.setWinState(false);
+    }
+}
+
 
 void Table::startRound() {
     // some init before starting round
     ++_roundNumber;
     throwAwayPreviousCards();
+    setPlayersState();
 
     // log for server
     printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
@@ -89,6 +98,8 @@ void Table::startRound() {
         int fd = pl.first;
         int bet = stoi(_server->getReply(fd));
         std::cout.flush();
+
+        // printLog use
         std::cout << "\tplayer " << pl.second.getName() << " made bet " << bet << std::endl;
 
         // and minusing balance by bet value and put it to bet
@@ -143,25 +154,72 @@ void Table::startRound() {
     //     }
     // }
 
-
+  
     //main logic: players that play round (isPlayingRoundState) take card or pass
 
-
     // now we need to bypass every player and ask if he takes card or not
-    for (auto& pl : _players) {
-        // send message to other players to wait until he will do his turn
-        for (auto otherPl : _players) {
-            if (otherPl.first != pl.first) {
-                std::string notifyOtherPl = "Wait, player " + pl.second.getName() + " is doing his turn...\n";
-                _server->sendMessage(otherPl.first, notifyOtherPl);
-            }
-        }
+    // others players when wait, receive msg that they need to wait..
 
-        std::string askTakeOrPass = "\nDo you want to take card or pass?";
-        askTakeOrPass += "\n";
-        askTakeOrPass += "1. take   2. pass  ";
-        _server->sendMessage(pl.first, askTakeOrPass);
+    for (auto& pl : _players) {
+        // // send message to other players to wait until he will do his turn
+        // for (const auto& otherPl : _players) {
+        //     if (otherPl.first != pl.first) {
+        //         std::string notifyOtherPl = "<1> Wait, player " + pl.second.getName() + " is doing his turn...\n";
+
+        //         _server->sendMessage(otherPl.first, notifyOtherPl);
+        //     }
+        // }
+
+        while(!pl.second.hasPassed()) {
+            std::string askTakeOrPass = "\nDo you want to take card or pass?";
+            askTakeOrPass += "\n";
+            askTakeOrPass += "1. take   2. pass  ";
+            _server->getReply(pl.first); // client: print take or pass
+            _server->sendMessage(pl.first, askTakeOrPass);
+            std::string reply = _server->getReply(pl.first);
+
+            if (reply == "1") {
+                // take card
+                Card card = _shoeDeck.getTopCard();
+                pl.second.putCard(card);
+
+                ss.str("");;
+                ss << std::endl << "you've taken " << card.getCardStr() << std::endl;
+                ss << "your cards are: " << pl.second.getCardsStr() << std::endl;
+
+                if (pl.second.getCardsSum() > 21) {
+                    ss << "sum of cards > 21 (" << pl.second.getCardsSum() << ")" << "you lost" << std::endl;
+                    pl.second.setPassState(true);
+                    pl.second.setLoseState(true);
+                }
+                else if (pl.second.getCardsSum() == 21)
+                {
+                    ss << "sum of cards = 21" << ". You pass." << std::endl;
+                    pl.second.setPassState(true);
+                }
+                // sends: you've taken __ \n your cards are: __ \n sum of cards > 21 || sum of cards = 21 || nothing
+                _server->sendMessage(pl.first, ss.str()); 
+            }
+            else if (reply == "2") {
+                // pass
+                pl.second.setPassState(true);
+                ss.str("");
+                ss << "you've passed" << std::endl;
+                _server->sendMessage(pl.first, ss.str());
+            }
+
+            _server->getReply(pl.first); // client: "get state""
+            if (pl.second.hasPassed())
+                _server->sendMessage(pl.first, "pass");
+            else
+                _server->sendMessage(pl.first, "play");   
+        }
     }
+
+
+    // (2) take or pass
+    // (1) wait, player is doing turn
+
 }
 
 void Table::printLog(std::string msg) {
