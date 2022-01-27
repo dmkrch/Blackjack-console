@@ -41,23 +41,17 @@ void CasinoPlayer::run() {
         // get info about self' and others' cards
         printReply();
 
-        // now here we can get either pass or take, or waiting for others message
-        // for that, we should extract tag before reply in <> brackets
-
-        // std::strint _client.getReply()
-
-        // first make only looped replies about taking card or not
-
+        std::string temp = "t";
         std::string reply = "";
         std::string turn;
 
         while(reply != "pass") {
-            _client.sendMessage("<>take or pass");
+            _client.sendMessage(temp); // this because 2 replies can't be byside
             printReply(); // prints 1. take 2. pass
             std::cin >> turn;
             _client.sendMessage(turn);
             printReply(); // prints // you've taken card... your cards are... you have 21 and u pass..
-            _client.sendMessage("<>get state");
+            _client.sendMessage(temp); // this because 2 replies can't be byside
             reply = _client.getReply(); // pass or play
         }
     }

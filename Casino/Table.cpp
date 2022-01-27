@@ -79,6 +79,7 @@ void Table::setPlayersState() {
 }
 
 
+
 void Table::startRound() {
     // some init before starting round
     ++_roundNumber;
@@ -130,35 +131,7 @@ void Table::startRound() {
         _server->sendMessage(pl.first, cardsInfo);
     }
 
-    // now we need to check if someone has blackjack
-
-    // TODO: do till the end
-    // // if croupier has blackjack
-    // if (_croupier.getCardsSum() == 21) {
-    //     for (auto& pl : _players) {
-    //         if (pl.second.getCardsSum() == 21) {
-    //             _server->sendMessage(pl.first, "Tie with croupie, you both have blackjack. You keep your bet\n");
-    //         }
-    //         else {
-    //             _server->sendMessage(pl.first, "Croupier has blackjack. You lost your bet\n");
-    //         }
-    //     }
-    // }
-    // else {
-    //     // here we check if player has blackjack
-    //     for (auto& pl : _players) {
-    //         if (pl.second.getCardsSum() == 21) {
-    //             _server->sendMessage(pl.first, "You have blackjack! You win x2.5 of your bet\n");
-    //             pl.second.setRoundPlayingState(false);
-    //         }
-    //     }
-    // }
-
-  
-    //main logic: players that play round (isPlayingRoundState) take card or pass
-
-    // now we need to bypass every player and ask if he takes card or not
-    // others players when wait, receive msg that they need to wait..
+    // TODO: check for blackjack combination
 
     for (auto& pl : _players) {
         // // send message to other players to wait until he will do his turn
@@ -174,7 +147,7 @@ void Table::startRound() {
             std::string askTakeOrPass = "\nDo you want to take card or pass?";
             askTakeOrPass += "\n";
             askTakeOrPass += "1. take   2. pass  ";
-            _server->getReply(pl.first); // client: print take or pass
+            _server->getReply(pl.first); // this because 2 sends can't be byside
             _server->sendMessage(pl.first, askTakeOrPass);
             std::string reply = _server->getReply(pl.first);
 
@@ -208,18 +181,13 @@ void Table::startRound() {
                 _server->sendMessage(pl.first, ss.str());
             }
 
-            _server->getReply(pl.first); // client: "get state""
+            _server->getReply(pl.first); // this because 2 replies can't be byside
             if (pl.second.hasPassed())
                 _server->sendMessage(pl.first, "pass");
             else
                 _server->sendMessage(pl.first, "play");   
         }
     }
-
-
-    // (2) take or pass
-    // (1) wait, player is doing turn
-
 }
 
 void Table::printLog(std::string msg) {
