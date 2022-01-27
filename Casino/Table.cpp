@@ -49,23 +49,38 @@ void Table::throwAwayPreviousCards() {
 }
 
 
-std::string Table::getCardsInfoForPlayer(std::pair<int, Player> playerToSend) {
+std::string Table::getCardsInfoOfAll(std::pair<int, Player> playerToSend) {
     int fd = playerToSend.first;
     // cards of all players first
     std::stringstream ss;
-    ss << std::endl;
 
-    for (auto otherPlayer : _players) {
-        // take info about other players' cards
-        if (playerToSend.first != otherPlayer.first)
-            ss << otherPlayer.second.getName() << " cards: " << otherPlayer.second.getCardsStr() << "  ";
-    }
+    ss << getCardsInfoOfOtherPlayers(playerToSend);
 
     // take info about cards of croupier
-    ss << std::endl << "croupier cards: " << _croupier.getStartRoundCardsStr() << std::endl;
+    ss << "croupier cards: " << _croupier.getStartRoundCardsStr() << " (X)" << std::endl;
 
     // take info about cards of certain player
-    ss << "your cards: " << playerToSend.second.getCardsStr() << std::endl;
+    ss << "your cards: " << playerToSend.second.getCardsStr();
+    ss << " (" << playerToSend.second.getCardsSum()<< ")" << std::endl;
+
+    return ss.str();
+}
+
+std::string Table::getCardsInfoOfOtherPlayers(std::pair<int, Player> excPl) {
+    int fd = excPl.first;
+
+    // cards of other players
+    std::stringstream ss;
+
+    for (auto pl : _players) {
+        // take info about other players' cards
+        if (pl.first != excPl.first) {
+            ss << pl.second.getName() << " cards: " << pl.second.getCardsStr();
+            ss << " (" << pl.second.getCardsSum() << ")" << "  ";
+        }
+    }
+
+    ss << std::endl;
 
     return ss.str();
 }
@@ -77,8 +92,6 @@ void Table::setPlayersState() {
         p.second.setWinState(false);
     }
 }
-
-
 
 void Table::startRound() {
     // some init before starting round
@@ -123,9 +136,9 @@ void Table::startRound() {
     _croupier.putCard(card);
 
 
-    // now we need to send the information to all clients
+    // now we need to send card information to all clients
     for (auto pl : _players) {
-        std::string cardsInfo = getCardsInfoForPlayer(pl);
+        std::string cardsInfo = getCardsInfoOfAll(pl);
 
         // now send info about other players' cards, croupier and his(pl) cards to pl
         _server->sendMessage(pl.first, cardsInfo);
@@ -134,17 +147,15 @@ void Table::startRound() {
     // TODO: check for blackjack combination
 
     
+    // send message to other players to wait until he will do his turn
+    for (auto player = ++_players.begin(); player != _players.end(); ++player) {
+        std::string notifyOtherPl = "Wait until players make their turn...\n";
+        _server->getReply((*player).first); // this because 2 sends can't be byside
+        _server->sendMessage((*player).first, notifyOtherPl); // send message notifyOtherPl to 2nd, 3rd..
+    }
+
 
     for (auto& pl : _players) {
-        // send message to other players to wait until he will do his turn
-        for (const auto& otherPl : _players) {
-            if (otherPl.first != pl.first) {
-                std::string notifyOtherPl = "<1> Wait, player " + pl.second.getName() + " is doing his turn...\n";
-
-                _server->sendMessage(otherPl.first, notifyOtherPl);
-            }
-        }
-
         // means that starting player taking card or passing logic
         std::string yourTurn("Your turn!\n");
         _server->getReply(pl.first); // this because 2 sends can't be byside
@@ -165,10 +176,11 @@ void Table::startRound() {
 
                 ss.str("");
                 ss << std::endl << "you've taken " << card.getCardStr() << std::endl;
-                ss << "your cards are: " << pl.second.getCardsStr() << std::endl;
+                ss << "your cards are: " << pl.second.getCardsStr() << " (";
+                ss << pl.second.getCardsSum() << ")" <<  std::endl;
 
                 if (pl.second.getCardsSum() > 21) {
-                    ss << "sum of cards > 21 (" << pl.second.getCardsSum() << ")" << "you lost" << std::endl;
+                    ss << "sum of cards > 21 (" << pl.second.getCardsSum() << ")" << ". You lost" << std::endl;
                     pl.second.setPassState(true);
                     pl.second.setLoseState(true);
                 }
@@ -191,11 +203,32 @@ void Table::startRound() {
             // now send another message to player - he is passing or playing
             _server->getReply(pl.first); // this because 2 replies can't be byside
             if (pl.second.hasPassed())
-                _server->sendMessage(pl.first, "pass");
+                _server->sendMessage(pl.first, "pass"); // <4> message TO player
             else
-                _server->sendMessage(pl.first, "play");   
+                _server->sendMessage(pl.first, "play"); // <4> message TO player  
         }
     }
+
+    // send all players info about other players cards and croupier
+    for (auto pl : _players) {
+        std::stringstream ss;
+        ss << "Croupier shows his 2 cards: " << _croupier.getCardsStr();
+        ss << " (" << _croupier.getCardsSum() << ")" << std::endl;
+
+        std::string otherPlayersCards = getCardsInfoOfOtherPlayers(pl);
+
+        ss << otherPlayersCards;
+
+        // now send info about other players' cards, croupier and his(pl) cards to pl
+        _server->getReply(pl.first); // this because 2 replies can't be byside
+        _server->sendMessage(pl.first, ss.str()); // <5> message to player
+    }
+
+    // // now croupier takes cards until points are 17. If 17 or > - passes
+    // while(_croupier.getCardsSum() < 17) {
+    //     Card card = _shoeDeck.getTopCard();
+    //     _croupier.putCard(card);
+    // }
 }
 
 void Table::printLog(std::string msg) {

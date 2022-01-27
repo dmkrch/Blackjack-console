@@ -22,7 +22,7 @@ std::string Croupier::getCardsStr() {
 }
 
 
-int Croupier::getCardsSum() {
+int Croupier::getCardsSum() const {
     int sum = 0;
     int amountOfAces = 0;
 
@@ -36,12 +36,13 @@ int Croupier::getCardsSum() {
             ++amountOfAces;
     }
 
-    // then adding aces one by one, so that sum will not exceed 21 points
+    // then adding aces one by one
     while(amountOfAces-- > 0) {
         if (sum + 11 <= 21)
             sum += 11;
-        else 
-            break;
+        else {
+            sum += 1;
+        }
     }
 
     return sum;

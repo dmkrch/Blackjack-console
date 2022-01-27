@@ -37,7 +37,8 @@ private:
 
     //gameplay:
     void throwAwayPreviousCards();
-    std::string getCardsInfoForPlayer(std::pair<int, Player> eachPlayer);
+    std::string getCardsInfoOfAll(std::pair<int, Player> eachPlayer);
+    std::string getCardsInfoOfOtherPlayers(std::pair<int, Player> pl);
     void setPlayersState();
 
     Server* _server;

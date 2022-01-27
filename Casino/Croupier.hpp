@@ -13,7 +13,7 @@ public:
     void throwCards() { _cards.clear(); }
 
     int getCardsAmount() const { return _cards.size(); }
-    int getCardsSum();
+    int getCardsSum() const;
     std::string getCardsStr();
     std::string getStartRoundCardsStr();
 
