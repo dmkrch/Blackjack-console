@@ -141,6 +141,7 @@ void Table::startRound() {
         std::string cardsInfo = getCardsInfoOfAll(pl);
 
         // now send info about other players' cards, croupier and his(pl) cards to pl
+        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
         _server->sendMessage(pl.first, cardsInfo);
     }
 
@@ -160,6 +161,8 @@ void Table::startRound() {
         std::string yourTurn("Your turn!\n");
         _server->getReply(pl.first); // this because 2 sends can't be byside
         _server->sendMessage(pl.first, yourTurn); // <0> message TO player
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
 
         while(!pl.second.hasPassed()) {
             std::string askTakeOrPass = "\nDo you want to take card or pass?";
@@ -198,6 +201,7 @@ void Table::startRound() {
                 ss << "you've passed" << std::endl;
             }
 
+            std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
             _server->sendMessage(pl.first, ss.str()); // <3> message TO player
 
             // now send another message to player - he is passing or playing
@@ -224,11 +228,48 @@ void Table::startRound() {
         _server->sendMessage(pl.first, ss.str()); // <5> message to player
     }
 
-    // // now croupier takes cards until points are 17. If 17 or > - passes
-    // while(_croupier.getCardsSum() < 17) {
-    //     Card card = _shoeDeck.getTopCard();
-    //     _croupier.putCard(card);
-    // }
+    // now croupier takes cards until points are 17. If 17 or > - passes
+    while(_croupier.getCardsSum() < 17) {
+        Card card = _shoeDeck.getTopCard();
+        _croupier.putCard(card);
+
+        std::stringstream ss;
+        ss << "Croupier takes card: " << card.getCardStr() << std::endl;
+
+        // now send info about croupier card
+        for (auto pl: _players) {
+            _server->getReply(pl.first); // this because 2 replies can't be byside
+            std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 2000));
+            _server->sendMessage(pl.first, ss.str()); // <6> message TO player
+        }
+    }
+
+    for (auto pl : _players) {
+        _server->getReply(pl.first); // this because 2 replies can't be byside
+
+        std::stringstream ss;
+        ss << "Croupier cards: ";
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1500));
+        _server->sendMessage(pl.first, ss.str()); // <7> message TO player
+        _server->getReply(pl.first);
+
+        ss.str("");
+        ss << _croupier.getCardsStr() << " (" << _croupier.getCardsSum() << ")" << std::endl;
+        _server->sendMessage(pl.first, ss.str()); // <8> message TO player
+    }
+
+
+
+    for (auto pl : _players) {
+        _server->getReply(pl.first); // this because 2 replies can't be byside
+        std::string str = "RESULTS:\n";
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
+        _server->sendMessage(pl.first, str); // <9> message TO player
+    }
+
+    // and now we need to calculate croupier sum of cards, players sum and print them results
 }
 
 void Table::printLog(std::string msg) {

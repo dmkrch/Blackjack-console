@@ -62,13 +62,29 @@ void CasinoPlayer::run() {
             _client.sendMessage(playerChoice); // <2> message TO casino
             printReply(); // <3> message FROM casino
             _client.sendMessage(temp); // this because 2 replies can't be byside
-            passOrPlay = _client.getReply(); // <4> message FROM casino
+            passOrPlay = _client.getReply(); // <3, 4> message FROM casino
         }
 
 
         // get msg about player cards in end of round
         _client.sendMessage(temp);
         std::cout << _client.getReply(); // <5> message FROM casino
+
+        std::string croupierCards = "";
+        while(croupierCards != "Croupier cards: ") { // <6, 7> message FROM casino
+            _client.sendMessage(temp);
+            croupierCards = _client.getReply();
+            std::cout << croupierCards;
+            fflush(stdout);
+        }
+
+        // get msg "croupier cards 7 8 9..."
+        _client.sendMessage(temp); // this because 2 replies can't be byside
+        std::cout << _client.getReply(); // <8> message
+
+        // get msg "RESULTS:\n"
+        _client.sendMessage(temp); // this because 2 replies can't be byside
+        std::cout << _client.getReply(); // <9> message
     }
 
     if (_player.getBalance() == 0) {
