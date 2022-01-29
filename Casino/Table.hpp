@@ -40,6 +40,7 @@ private:
     std::string getCardsInfoOfAll(std::pair<int, Player> eachPlayer);
     std::string getCardsInfoOfOtherPlayers(std::pair<int, Player> pl);
     void setPlayersState();
+    void callDelay();
 
     Server* _server;
     std::map<int, Player> _players;

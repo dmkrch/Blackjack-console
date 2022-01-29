@@ -16,9 +16,12 @@
 #include <iostream>
 #include <cstring>
 
+#include <chrono>
+#include <thread>
+
 #define SERVERPORT 9034
 #define IP_ADDRESS "127.0.0.1"
-#define BUFSIZE 100
+#define BUFSIZE 300
 #define SOCKETERROR (-1)
 
 
@@ -37,6 +40,11 @@ public:
 private:
     void init();
     int check(int exp, const char* msg);
+
+    void callDelay() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
+    }
+
 
     int _clientSocket;
     sockaddr_in _serverAddr;
