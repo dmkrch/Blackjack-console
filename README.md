@@ -1,6 +1,6 @@
 ## Blackjack
 ### Console-application 'Blackjack' with multiple client server
-#### Casino have 5 tables, 
+
 
 ### HOW TO USE
 1. Clone this rep
