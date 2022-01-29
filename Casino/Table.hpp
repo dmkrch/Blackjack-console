@@ -29,10 +29,9 @@ public:
 
 private:
     ShoeDeck _shoeDeck;
-
     
     void startRound();
-    void printLog(std::string msg);
+    void printLog(const std::string& msg);
     void sendMsgToAllPlayers(std::string msg);
 
     //gameplay:
@@ -41,6 +40,8 @@ private:
     std::string getCardsInfoOfOtherPlayers(std::pair<int, Player> pl);
     void setPlayersState();
     void callDelay();
+
+    std::string getPlayerResult(Player& pl1);
 
     Server* _server;
     std::map<int, Player> _players;

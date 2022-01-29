@@ -13,7 +13,7 @@ void CasinoPlayer::run() {
     std::string balance;
     std::string bet;
 
-    // get put name
+    // get 'put name'
     printReply();
     std::cin >> name;
 
@@ -27,6 +27,10 @@ void CasinoPlayer::run() {
     _client.sendMessage(balance);
 
     while(_player.getBalance() > 0) {
+        printReply(); // get your balance msg
+        _client.sendMessage("t0");
+
+
         // get start round and bet info
         printReply();
 
@@ -91,7 +95,12 @@ void CasinoPlayer::run() {
         _client.sendMessage("t7"); // this because 2 replies can't be byside
         std::cout << _client.getReply(); // <10> message    
 
+        // get actual results
         _client.sendMessage("t8"); // this because 2 replies can't be byside
+        std::cout << _client.getReply(); // <11> message    
+
+
+        _client.sendMessage("t9"); // this because 2 replies can't be byside
     }
 
     if (_player.getBalance() == 0) {

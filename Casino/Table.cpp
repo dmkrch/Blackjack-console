@@ -49,7 +49,38 @@ void Table::throwAwayPreviousCards() {
 }
 
 void Table::callDelay() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 750));
+}
+
+std::string Table::getPlayerResult(Player& pl) {
+    std::stringstream ss;
+
+    if (pl.getCardsSum() <= 21) {
+        if (_croupier.getCardsSum() <= 21) {
+            if (pl.getCardsSum() > _croupier.getCardsSum()) {
+                ss <<  "You win your bet x2: " << pl.getBet() << std::endl;
+                pl.setBalance(pl.getBalance() + 2 * pl.getBet());
+            }
+            else if (pl.getCardsSum() < _croupier.getCardsSum()) {
+                ss << "You lost your bet: " << pl.getBet() << std::endl;
+                // do nothing cause player already gave his bet to casino
+            }
+            else {
+                ss << "Tie with croupier. You keep your bet " << pl.getBet() << std::endl;
+                pl.setBalance(pl.getBalance() + pl.getBet());
+            }
+        }
+        else {
+            ss <<  "You win your bet x2: " << pl.getBet() << std::endl;
+            pl.setBalance(pl.getBalance() + 2 * pl.getBet());
+        }
+    }
+    else {
+        ss << "You lost your bet: " << pl.getBet() << std::endl;
+        // do nothing cause player already gave his bet to casino
+    }
+
+    return ss.str();
 }
 
 
@@ -92,7 +123,6 @@ std::string Table::getCardsInfoOfOtherPlayers(std::pair<int, Player> excPl) {
 void Table::setPlayersState() {
     for (auto& p : _players) {
         p.second.setPassState(false);
-        p.second.setLoseState(false);
         p.second.setWinState(false);
     }
 }
@@ -108,11 +138,17 @@ void Table::startRound() {
 
     // send start round info and make bet
     std::stringstream ss;
-    ss << "----------------ROUND #" << _roundNumber << "--------------" << std::endl << std::endl;
-    ss << "Enter your bet for round: ";
-
 
     for (auto pl : _players) {
+        ss << "----------------ROUND #" << _roundNumber << "--------------" << std::endl;
+        ss << "Your balance: " << pl.second.getBalance() << std::endl << std::endl;
+        _server->sendMessage(pl.first, ss.str());
+    }
+
+    ss.str("");
+    ss << "Enter your bet for round: ";
+    for (auto pl : _players) {
+        _server->getReply(pl.first);
         _server->sendMessage(pl.first, ss.str());
     }
 
@@ -149,6 +185,8 @@ void Table::startRound() {
         std::string cardsInfo = getCardsInfoOfAll(pl);
 
         // now send info about other players' cards, croupier and his(pl) cards to pl
+
+        callDelay();
         _server->sendMessage(pl.first, cardsInfo);
     }
 
@@ -159,6 +197,7 @@ void Table::startRound() {
         std::string yourTurn("Your turn!\n");
         std::string t1 = _server->getReply(pl.first); // this because 2 sends can't be byside
 
+        callDelay();
         _server->sendMessage(pl.first, yourTurn); // <0> message TO player
 
         while(!pl.second.hasPassed()) {
@@ -184,7 +223,6 @@ void Table::startRound() {
                     ss << "sum of cards > 21 (" << pl.second.getCardsSum() << ")" << ". You lost";
                     ss << std::endl << std::endl;
                     pl.second.setPassState(true);
-                    pl.second.setLoseState(true);
                 }
                 else if (pl.second.getCardsSum() == 21)
                 {
@@ -200,6 +238,7 @@ void Table::startRound() {
                 ss << "you've passed" << std::endl << std::endl;
             }
 
+            callDelay();
             _server->sendMessage(pl.first, ss.str()); // <3> message TO player
 
             // now send another message to player - he is passing or playing
@@ -223,6 +262,8 @@ void Table::startRound() {
 
         // now send info about other players' cards, croupier and his(pl) cards to pl
         _server->getReply(pl.first); // this because 2 replies can't be byside
+
+        callDelay();
         _server->sendMessage(pl.first, ss.str()); // <5> message to player
     }
 
@@ -237,6 +278,8 @@ void Table::startRound() {
         // now send info about croupier card
         for (auto pl: _players) {
             _server->getReply(pl.first); // this because 2 replies can't be byside
+
+            callDelay();
             _server->sendMessage(pl.first, ss.str()); // <6> message TO player
         }
     }
@@ -247,6 +290,7 @@ void Table::startRound() {
         std::stringstream ss;
         ss << "Croupier cards: ";
 
+        callDelay();
         _server->sendMessage(pl.first, ss.str()); // <7> message TO player
         _server->getReply(pl.first);
 
@@ -257,24 +301,32 @@ void Table::startRound() {
 
     for (auto pl : _players) {
         _server->getReply(pl.first);
+
+        callDelay();
         _server->sendMessage(pl.first, "Croupier passes\n"); // <9> message TO player
     }
 
     for (auto pl : _players) {
         _server->getReply(pl.first); // this because 2 replies can't be byside
-        std::string str = "RESULTS:\n";
+        std::string str = "\t\tYOUR RESULT\n";
 
         _server->sendMessage(pl.first, str); // <10> message TO player
     }
 
-    for (auto p : _players) {
-        _server->getReply(p.first); // temp
+    for (auto& pl : _players) {
+        _server->getReply(pl.first); // this because 2 replies can't be byside
+        std::string result = getPlayerResult(pl.second);
+
+        callDelay();
+        _server->sendMessage(pl.first, result); // <11> message TO player
     }
 
-    // and now we need to calculate croupier sum of cards, players sum and print them results
+    for (const auto& p : _players) {
+        _server->getReply(p.first); // temp
+    }
 }
 
-void Table::printLog(std::string msg) {
+void Table::printLog(const std::string& msg) {
     std::cout << "Table #" << _tableId << ": " << msg << std::endl;
 }
 

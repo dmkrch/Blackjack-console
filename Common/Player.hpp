@@ -17,7 +17,6 @@ public:
     void throwCards() { _cards.clear(); }
     void setPassState(bool state) { _hasPassed = state; }
     void setWinState(bool state) { _hasWon = state; }
-    void setLoseState(bool state) { _hasLost = state; }
     
     std::string getName() const { return _name; }
     int getBet() const { return _currentBet; }
@@ -27,7 +26,6 @@ public:
     bool isPlayingRoundState() const { return _isPlaying; }
     bool hasPassed() const { return _hasPassed; }
     bool hasWon() const { return _hasWon; }
-    bool hasLost() const { return _hasLost; }
     void setRoundPlayingState(bool state) { _isPlaying = state; }
     std::string getCardsStr();
 private:
@@ -36,7 +34,6 @@ private:
     bool _isPlaying;
     bool _hasPassed;
     bool _hasWon;
-    bool _hasLost;
     int _balance;
     int _currentBet;
 };
