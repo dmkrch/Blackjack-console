@@ -6,12 +6,13 @@
 class CasinoPlayer {
 public:
     CasinoPlayer();
-    ~CasinoPlayer();
     void run();
 
 private:
     void stopPlaying();
-    void printReply();
+    void printReply() const;
+
+private:
     Client _client;
     Player _player;
 };

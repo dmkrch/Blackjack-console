@@ -31,9 +31,9 @@ public:
     Card(CARD_RANK r, CARD_SUIT s);
     Card(CARD_RANK r);
     
-    int getValue();
+    int getValue() const;
     CARD_RANK getCardRank() const { return _rank; }
-    std::string getCardStr();
+    std::string getCardStr() const;
 private:
     CARD_RANK _rank;
     CARD_SUIT _suit;

@@ -14,8 +14,8 @@ public:
 
     int getCardsAmount() const { return _cards.size(); }
     int getCardsSum() const;
-    std::string getCardsStr();
-    std::string getStartRoundCardsStr();
+    std::string getCardsStr() const;
+    std::string getStartRoundCardsStr() const;
 
 private:
     std::vector<Card> _cards;

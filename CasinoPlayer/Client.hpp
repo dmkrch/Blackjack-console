@@ -31,20 +31,15 @@ public:
         init();
     }
 
-    std::string getReply();
-    int sendMessage(const char *messageBuffer);
-    int sendMessage(std::string messageBuffer);
+    std::string getReply() const;
+    int sendMessage(const char *messageBuffer) const;
+    int sendMessage(const std::string& messageBuffer) const;
     int getClientSocket() const { return _clientSocket; }
-    void disconnect() { close(_clientSocket); }
+    void disconnect() const { close(_clientSocket); }
 
 private:
     void init();
-    int check(int exp, const char* msg);
-
-    void callDelay() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 1000));
-    }
-
+    int check(int exp, const char* msg) const;
 
     int _clientSocket;
     sockaddr_in _serverAddr;

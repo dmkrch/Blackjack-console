@@ -30,33 +30,34 @@ public:
     void closeConnection(int fd);
 
     std::string getReply(int fd);
-    uint16_t sendMessage(int fd, const char *messageBuffer);
-    uint16_t sendMessage(int fd, char *messageBuffer);
-    uint16_t sendMessage(int fd, std::string messageBuffer);
+    uint16_t sendMessage(int fd, const char *messageBuffer) const;
+    uint16_t sendMessage(int fd, char *messageBuffer) const;
+    uint16_t sendMessage(int fd, std::string messageBuffer) const;
 
 private:
-    std::mutex sendMsgMutex;
-    //fd_set file descriptor sets for use with FD_ macros
-    fd_set masterfds;
-    fd_set tempfds;
-
-    //unsigned integer to keep track of maximum fd value, required for select()
-    uint16_t maxfd;
-
-    //socket file descriptors
-    int mastersocket_fd; //master socket which receives new connections
-    int tempsocket_fd; //temporary socket file descriptor which holds new clients
-
-    //client connection data
-    struct sockaddr_storage client_addr;
-    //server socket details
-    struct sockaddr_in servaddr;
-    //input buffer
-    char input_buffer[INPUT_BUFFER_SIZE];
-
     //function prototypes
     void setup(int port);
     void initializeSocket();
     void bindSocket();
     void startListen();
+
+private:
+    std::mutex _sendMsgMutex;
+    //fd_set file descriptor sets for use with FD_ macros
+    fd_set _masterfds;
+    fd_set _tempfds;
+
+    //unsigned integer to keep track of maximum fd value, required for select()
+    uint16_t _maxfd;
+
+    //socket file descriptors
+    int _mastersocket_fd; //master socket which receives new connections
+    int _tempsocket_fd; //temporary socket file descriptor which holds new clients
+
+    //client connection data
+    struct sockaddr_storage _client_addr;
+    //server socket details
+    struct sockaddr_in _servaddr;
+    //input buffer
+    char _input_buffer[INPUT_BUFFER_SIZE];
 };

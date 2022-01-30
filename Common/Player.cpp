@@ -5,9 +5,9 @@ Player::Player() {
     _hasWon = false;
 }
 
-std::string Player::getCardsStr() {
+std::string Player::getCardsStr() const {
     std::stringstream ss;
-    for (auto card : _cards) {
+    for (const auto& card : _cards) {
         ss << card.getCardStr() << "  ";
     }
 
@@ -19,7 +19,7 @@ int Player::getCardsSum() const {
     int amountOfAces = 0;
 
     // first get the sum without aces
-    for (auto card : _cards) {
+    for (const auto& card : _cards) {
         int cardVal = card.getValue();
 
         if (cardVal != 11)

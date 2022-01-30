@@ -1,10 +1,10 @@
 #include "ShoeDeck.hpp"
 
-void ShoeDeck::ShuffleShoe() {
-    _shoeDeck.Shuffle();
+void ShoeDeck::shuffleShoe() {
+    _shoeDeck.shuffle();
 }
 
-bool ShoeDeck::isShuffleNeeded() {
+bool ShoeDeck::isShuffleNeeded() const {
     int amountOfFullCardsDeck = _amountOfDecksInShoe * 52;
     int leftCards = _shoeDeck.getCardsAmount();
 

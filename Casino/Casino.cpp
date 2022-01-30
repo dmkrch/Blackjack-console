@@ -4,11 +4,11 @@
 Casino::Casino() {
     _maxTables = consts::maxTables;
 
-    _server = new Server();
+    _server = std::make_shared<Server>();
     _server->init();
 
     for (int i = 0; i < _maxTables; ++i)
-        _tables.push_back(Table(_server));
+        _tables.emplace_back(Table(_server));
 }
 
 void Casino::run() {
@@ -42,16 +42,16 @@ void Casino::run() {
                 if (_tables[i].isFreeSpace()) {
                     if (!_tables[i].isRoundContinues()) { // if round is not playing - just add player to table
                         if (_tables[i].isTableEmpty()) {
-                            _tables[i].AddPlayer(p, player_fd);
+                            _tables[i].addPlayer(p, player_fd);
                             // and here start run in new thread
-                            _tables_threads.push_back(std::thread(&Table::run, &_tables[i]));
+                            _tables_threads.emplace_back(std::thread(&Table::run, &_tables[i]));
                         }
                         else {
-                            _tables[i].AddPlayer(p, player_fd);
+                            _tables[i].addPlayer(p, player_fd);
                         }
                     }
                     else { // if round continues - add players to waiting
-                        _tables[i].AddWaitingPlayer(p, player_fd);
+                        _tables[i].addWaitingPlayer(p, player_fd);
                     }
                     playerWasAdded = true;
                 }

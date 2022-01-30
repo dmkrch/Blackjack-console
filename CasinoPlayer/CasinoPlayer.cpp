@@ -2,10 +2,6 @@
 
 CasinoPlayer::CasinoPlayer() { }
 
-CasinoPlayer::~CasinoPlayer() {
-    close(_client.getClientSocket());
-}
-
 void CasinoPlayer::run() {
     char buffer[BUFSIZE];
 
@@ -36,13 +32,7 @@ void CasinoPlayer::run() {
 
         // get bet info
         int bet;
-        // send bet and check if not more than balance to opened socket
         std::cin >> bet;
-        while(bet > _player.getBalance()) {
-            std::cout << "Your balance: " << _player.getBalance() << "$ is less" << std::endl;
-            std::cout << "Enter right bet: ";
-            std::cin >> bet;
-        }
         _player.setBet(bet);
         _player.setBalance(_player.getBalance() - bet);
 
@@ -105,10 +95,11 @@ void CasinoPlayer::run() {
 
     if (_player.getBalance() == 0) {
         std::cout << "you lost all money!" << std::endl;
+        stopPlaying();
     }
 }
 
-void CasinoPlayer::printReply() {
+void CasinoPlayer::printReply() const {
     std::cout << _client.getReply(); 
     fflush(stdout);
 }

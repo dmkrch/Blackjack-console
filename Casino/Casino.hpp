@@ -14,7 +14,7 @@ public:
     void run();
 
 private:
-    Server* _server;
+    std::shared_ptr<Server> _server;
     std::vector<Table> _tables;
     std::vector<std::thread> _tables_threads;
     int _maxTables;

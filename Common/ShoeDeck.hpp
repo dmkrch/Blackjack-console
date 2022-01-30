@@ -14,9 +14,9 @@ public:
         }
     }
     
-    void ShuffleShoe();
-    bool isShuffleNeeded();
-    Card getTopCard() { return _shoeDeck.GetTopCard(); }
+    void shuffleShoe();
+    bool isShuffleNeeded() const;
+    Card getTopCard() { return _shoeDeck.getTopCard(); }
     int getAmountOfCards() const { return _shoeDeck.getCardsAmount(); }
 private:
     int _amountOfDecksInShoe;

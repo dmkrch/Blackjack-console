@@ -4,17 +4,17 @@ Croupier::Croupier() {
     
 }
 
-std::string Croupier::getStartRoundCardsStr() {
+std::string Croupier::getStartRoundCardsStr() const {
     std::stringstream ss;
-    if (_cards.size() > 0)
+    if (!_cards.empty())
         ss << _cards[0].getCardStr() << "  X ";
 
     return ss.str();
 }
 
-std::string Croupier::getCardsStr() {
+std::string Croupier::getCardsStr() const {
     std::stringstream ss;
-    for (auto card : _cards) {
+    for (const auto& card : _cards) {
         ss << card.getCardStr() << "  ";
     }
 
@@ -27,7 +27,7 @@ int Croupier::getCardsSum() const {
     int amountOfAces = 0;
 
     // first get the sum without aces
-    for (auto card : _cards) {
+    for (const auto& card : _cards) {
         int cardVal = card.getValue();
 
         if (cardVal != 11)

@@ -9,8 +9,8 @@
 class CardDeck {
 public:
     CardDeck();
-    void Shuffle();
-    Card GetTopCard();
+    void shuffle();
+    Card getTopCard();
     int getCardsAmount() const { return _cards.size(); }
 
     CardDeck operator+(const CardDeck& deck2);

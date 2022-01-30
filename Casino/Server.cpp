@@ -12,7 +12,7 @@ Server::Server(int port)
 
 Server::~Server()
 {
-	close(mastersocket_fd);
+	close(_mastersocket_fd);
 }
 
 
@@ -37,26 +37,26 @@ std::string Server::getReply(int fd) {
 // setup of server doing some stuff: 
 void Server::setup(int port)
 {
-    mastersocket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (mastersocket_fd < 0) {
+    _mastersocket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (_mastersocket_fd < 0) {
         perror("Socket creation failed");
     }
 
-    FD_ZERO(&masterfds);
-    FD_ZERO(&tempfds);
+    FD_ZERO(&_masterfds);
+    FD_ZERO(&_tempfds);
 
-    memset(&servaddr, 0, sizeof (servaddr)); //bzero
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htons(INADDR_ANY);
-    servaddr.sin_port = htons(port);
+    memset(&_servaddr, 0, sizeof (_servaddr)); //bzero
+    _servaddr.sin_family = AF_INET;
+    _servaddr.sin_addr.s_addr = htons(INADDR_ANY);
+    _servaddr.sin_port = htons(port);
 
-    bzero(input_buffer,INPUT_BUFFER_SIZE); //zero the input buffer before use to avoid random data appearing in first receives
+    bzero(_input_buffer,INPUT_BUFFER_SIZE); //zero the input buffer before use to avoid random data appearing in first receives
 }
 
 void Server::initializeSocket()
 {
 	int opt_value = 1;
-	int ret_test = setsockopt(mastersocket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &opt_value, sizeof (int));
+	int ret_test = setsockopt(_mastersocket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &opt_value, sizeof (int));
 
 	if (ret_test < 0) {
         perror("[SERVER] [ERROR] setsockopt() failed");
@@ -66,18 +66,18 @@ void Server::initializeSocket()
 
 void Server::bindSocket()
 {
-	int bind_ret = bind(mastersocket_fd, (struct sockaddr*) &servaddr, sizeof (servaddr));
+	int bind_ret = bind(_mastersocket_fd, (struct sockaddr*) &_servaddr, sizeof (_servaddr));
 
 	if (bind_ret < 0) {
 		perror("[SERVER] [ERROR] bind() failed");
 	}
-	FD_SET(mastersocket_fd, &masterfds); //insert the master socket file-descriptor into the master fd-set
-	maxfd = mastersocket_fd; //set the current known maximum file descriptor count
+	FD_SET(_mastersocket_fd, &_masterfds); //insert the master socket file-descriptor into the master fd-set
+	_maxfd = _mastersocket_fd; //set the current known maximum file descriptor count
 }
 
 void Server::startListen()
 {
-	int listen_ret = listen(mastersocket_fd, 3);
+	int listen_ret = listen(_mastersocket_fd, 3);
 
 	if (listen_ret < 0) {
 		perror("[SERVER] [ERROR] listen() failed");
@@ -86,33 +86,33 @@ void Server::startListen()
 
 void Server::shutdown()
 {
-	int close_ret = close(mastersocket_fd);
+	int close_ret = close(_mastersocket_fd);
 }
 
 
 int Server::handleNewConnection()
 {
-	socklen_t addrlen = sizeof (client_addr);
-	tempsocket_fd = accept(mastersocket_fd, (struct sockaddr*) &client_addr, &addrlen);
+	socklen_t addrlen = sizeof (_client_addr);
+	_tempsocket_fd = accept(_mastersocket_fd, (struct sockaddr*) &_client_addr, &addrlen);
     	
-	if (tempsocket_fd < 0) {
+	if (_tempsocket_fd < 0) {
         	perror("[SERVER] [ERROR] accept() failed");
 	} 
 	else {
         // setting new connection descripton to set
-        FD_SET(tempsocket_fd, &masterfds);
+        FD_SET(_tempsocket_fd, &_masterfds);
 		//increment the maximum known file descriptor (select() needs it)
-        if (tempsocket_fd > maxfd) {
-            maxfd = tempsocket_fd;
+        if (_tempsocket_fd > _maxfd) {
+            _maxfd = _tempsocket_fd;
         }
     }
 
-    return tempsocket_fd;
+    return _tempsocket_fd;
 }
 
 void Server::closeConnection(int fd) {
     close(fd); //close connection to client
-	FD_CLR(fd, &masterfds); //clear the client fd from fd set
+	FD_CLR(fd, &_masterfds); //clear the client fd from fd set
 }
 
 
@@ -123,18 +123,17 @@ void Server::init()
     startListen();
 }
 
-uint16_t Server::sendMessage(int fd, char *messageBuffer) {
+uint16_t Server::sendMessage(int fd, char *messageBuffer) const {
     // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer,strlen(messageBuffer),0);
 }
 
-uint16_t Server::sendMessage(int fd, const char *messageBuffer) {
+uint16_t Server::sendMessage(int fd, const char *messageBuffer) const {
     // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer,strlen(messageBuffer),0);
 }
 
-uint16_t Server::sendMessage(int fd, std::string messageBuffer) {
+uint16_t Server::sendMessage(int fd, std::string messageBuffer) const {
     // const std::lock_guard<std::mutex> lock(sendMsgMutex);
     return send(fd, messageBuffer.c_str(), messageBuffer.size(), 0);
 }
-

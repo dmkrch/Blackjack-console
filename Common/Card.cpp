@@ -7,7 +7,7 @@ Card::Card(CARD_RANK r) : _rank{r} {
 
 }
 
-int Card::getValue() {
+int Card::getValue() const {
     switch(_rank) {
     case CARD_RANK::TWO:
     case CARD_RANK::THREE:
@@ -30,7 +30,7 @@ int Card::getValue() {
     }
 }
 
-std::string Card::getCardStr() {
+std::string Card::getCardStr() const {
     switch(_rank) {
     case CARD_RANK::TWO:
     case CARD_RANK::THREE:

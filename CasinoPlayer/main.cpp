@@ -1,7 +1,4 @@
-#include <iostream>
 #include <vector>
-#include <thread>
-#include "Client.hpp"
 #include "CasinoPlayer.hpp"
 
 int main() {

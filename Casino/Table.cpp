@@ -5,33 +5,33 @@ std::mutex addPlayerMutex;
 std::mutex addWaitPlayerMutex;
 int Table::_roundCounter = 1;
 
-Table::Table(Server* server) : _shoeDeck{ShoeDeck(consts::shoeDecks)} {
+Table::Table(std::shared_ptr<Server> server) : _shoeDeck{ShoeDeck(consts::shoeDecks)} {
     _tableId = _roundCounter++;
 
     _isRoundContinues = false;
     _maxPlayers = consts::maxPlayersPerTable;
-    _server = server;
+    _server = std::move(server);
     _roundNumber = 0;
 }
 
-void Table::AddPlayer(Player p, int fd) {
+void Table::addPlayer(Player p, int fd) {
     printLog("Adding player " + p.getName());
     //const std::lock_guard<std::mutex> lock(addWaitPlayerMutex);
     _players.insert({fd, p});
 }
 
-void Table::AddWaitingPlayer(Player p, int fd) {
+void Table::addWaitingPlayer(Player p, int fd) {
     printLog("Adding waiting player " + p.getName());
     //const std::lock_guard<std::mutex> lock(addPlayerMutex);
     _waitingPlayers.insert({fd, p});
 }
 
 bool Table::isRoundContinues() {
-return _isRoundContinues;
+    return _isRoundContinues;
 }
 
 bool Table::isTableEmpty() {
-    return _players.size() == 0;
+    return _players.empty();
 }
 
 bool Table::isFreeSpace() {
@@ -84,7 +84,7 @@ std::string Table::getPlayerResult(Player& pl) {
 }
 
 
-std::string Table::getCardsInfoOfAll(std::pair<int, Player> playerToSend) {
+std::string Table::getCardsInfoOfAll(const std::pair<int, Player>& playerToSend) {
     int fd = playerToSend.first;
     // cards of all players first
     std::stringstream ss;
@@ -101,7 +101,7 @@ std::string Table::getCardsInfoOfAll(std::pair<int, Player> playerToSend) {
     return ss.str();
 }
 
-std::string Table::getCardsInfoOfOtherPlayers(std::pair<int, Player> excPl) {
+std::string Table::getCardsInfoOfOtherPlayers(const std::pair<int, Player>& excPl) {
     int fd = excPl.first;
 
     // cards of other players
@@ -135,7 +135,7 @@ void Table::startRound() {
     
     // shuffle the deck if few cards lefted (consts:perctang)
     if (_shoeDeck.isShuffleNeeded()) {
-        _shoeDeck.ShuffleShoe();
+        _shoeDeck.shuffleShoe();
         printLog("Shuffle was made");
     }
 
@@ -330,6 +330,13 @@ void Table::startRound() {
     for (const auto& p : _players) {
         _server->getReply(p.first); // temp
     }
+
+    for (auto pl = _players.cbegin(); pl != _players.cend();) {
+        if ((*pl).second.getBalance() == 0)
+            _players.erase(pl++);
+        else
+            ++pl;
+    }
 }
 
 void Table::printLog(const std::string& msg) {
@@ -338,7 +345,9 @@ void Table::printLog(const std::string& msg) {
 
 void Table::run() {
     printLog("run()");
-    while(_players.size() > 0) {
+
+    while(true) {
+        // TODO: if player has no balance
         // main logic of round here
         printLog("start of round");
         _isRoundContinues = true;
@@ -349,7 +358,7 @@ void Table::run() {
         // if there are waiting players - time to add them to actual players
         if (_waitingPlayers.size() > 0) {
             // we should add waiting players to table if they exist
-            for (auto p:_waitingPlayers)
+            for (const auto& p:_waitingPlayers)
                 printLog("Adding waiting player" + p.second.getName() + " to round");
 
             _players.insert(_waitingPlayers.begin(), _waitingPlayers.end());
@@ -368,7 +377,7 @@ void Table::run() {
 }
 
 void Table::sendMsgToAllPlayers(std::string msg) {
-    for (auto pair : _players) {
+    for (const auto& pair : _players) {
         _server->sendMessage(pair.first, msg);
     }
 }

@@ -27,7 +27,7 @@ public:
     bool hasPassed() const { return _hasPassed; }
     bool hasWon() const { return _hasWon; }
     void setRoundPlayingState(bool state) { _isPlaying = state; }
-    std::string getCardsStr();
+    std::string getCardsStr() const;
 private:
     std::vector<Card> _cards;
     std::string _name;

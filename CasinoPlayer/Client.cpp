@@ -1,7 +1,7 @@
 #include "Client.hpp"
 
 
-int Client::check(int exp, const char* msg)
+int Client::check(int exp, const char* msg) const
 {
     if (exp == SOCKETERROR)
     {
@@ -36,7 +36,7 @@ void Client::init() {
         "Connect failed");
 }
 
-std::string Client::getReply() {
+std::string Client::getReply() const {
     char buffer[BUFSIZE];
     int nbytesrecv = recv(_clientSocket, buffer, BUFSIZE, 0);
     buffer[nbytesrecv] = '\0';
@@ -56,10 +56,10 @@ std::string Client::getReply() {
     return std::string(buffer);
 }
 
-int Client::sendMessage(const char *messageBuffer) {
+int Client::sendMessage(const char *messageBuffer) const {
     return send(_clientSocket, messageBuffer, strlen(messageBuffer), 0);
 }
 
-int Client::sendMessage(std::string messageBuffer) {
+int Client::sendMessage(const std::string& messageBuffer) const {
     return send(_clientSocket, messageBuffer.c_str(), messageBuffer.size(), 0);
 }

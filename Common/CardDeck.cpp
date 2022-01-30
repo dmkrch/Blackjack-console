@@ -32,14 +32,14 @@ CardDeck::CardDeck() {
     }
 
     // and now shuffle the deck 
-    Shuffle();
+    shuffle();
 }
 
-void CardDeck::Shuffle() {
+void CardDeck::shuffle() {
     std::shuffle(std::begin(_cards), std::end(_cards), rng);
 }
 
-Card CardDeck::GetTopCard() {
+Card CardDeck::getTopCard() {
     Card card = _cards.back();
     _cards.pop_back();
     return card;

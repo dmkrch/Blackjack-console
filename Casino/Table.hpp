@@ -16,12 +16,12 @@
 
 class Table {
 public:
-    Table(Server* server);
+    Table(std::shared_ptr<Server> server);
     
     void run();
 
-    void AddPlayer(Player p, int fd);
-    void AddWaitingPlayer(Player p, int fd);
+    void addPlayer(Player p, int fd);
+    void addWaitingPlayer(Player p, int fd);
 
     bool isRoundContinues();
     bool isTableEmpty();
@@ -36,14 +36,14 @@ private:
 
     //gameplay:
     void throwAwayPreviousCards();
-    std::string getCardsInfoOfAll(std::pair<int, Player> eachPlayer);
-    std::string getCardsInfoOfOtherPlayers(std::pair<int, Player> pl);
+    std::string getCardsInfoOfAll(const std::pair<int, Player>& eachPlayer);
+    std::string getCardsInfoOfOtherPlayers(const std::pair<int, Player>& pl);
     void setPlayersState();
     void callDelay();
 
     std::string getPlayerResult(Player& pl1);
 
-    Server* _server;
+    std::shared_ptr<Server> _server;
     std::map<int, Player> _players;
     std::map<int, Player> _waitingPlayers;
     Croupier _croupier;
