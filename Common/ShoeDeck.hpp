@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CardDeck.hpp"
+#include "Consts.hpp"
 
 class ShoeDeck {
 public:

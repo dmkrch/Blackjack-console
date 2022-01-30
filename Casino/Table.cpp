@@ -132,6 +132,12 @@ void Table::startRound() {
     ++_roundNumber;
     throwAwayPreviousCards();
     setPlayersState();
+    
+    // shuffle the deck if few cards lefted (consts:perctang)
+    if (_shoeDeck.isShuffleNeeded()) {
+        _shoeDeck.ShuffleShoe();
+        printLog("Shuffle was made");
+    }
 
     // log for server
     printLog(std::to_string(_players.size()) + " players in round #" + std::to_string(_roundNumber));
@@ -140,6 +146,7 @@ void Table::startRound() {
     std::stringstream ss;
 
     for (auto pl : _players) {
+        ss.str("");
         ss << "----------------ROUND #" << _roundNumber << "--------------" << std::endl;
         ss << "Your balance: " << pl.second.getBalance() << std::endl << std::endl;
         _server->sendMessage(pl.first, ss.str());
@@ -152,7 +159,6 @@ void Table::startRound() {
         _server->sendMessage(pl.first, ss.str());
     }
 
-    
     for (auto& pl : _players) {
         int fd = pl.first;
 
