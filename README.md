@@ -4,7 +4,7 @@
 
 ### HOW TO USE
 1. Clone this rep
-2. Make directory for building rools. For example Blackjack/temp/
+2. Make directory for building rules. For example Blackjack/temp/
 3. Run 'cmake ../' in Blackjack/temp/ directory
 4. Run 'make' in Blackjack/temp/ directory
 5. Run 'casino' executable in Blackjack/temp/Casino/
