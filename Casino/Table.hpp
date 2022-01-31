@@ -26,6 +26,7 @@ public:
     bool isRoundContinues();
     bool isTableEmpty();
     bool isFreeSpace();
+    bool wasRunned();
 
 private:
     ShoeDeck _shoeDeck;
@@ -41,7 +42,7 @@ private:
     void setPlayersState();
     void callDelay();
 
-    std::string getPlayerResult(Player& pl1);
+    std::string getPlayerResultAndSend(Player& pl1, int fd);
 
     std::shared_ptr<Server> _server;
     std::map<int, Player> _players;
@@ -53,4 +54,5 @@ private:
     static int _roundCounter;
     int _maxPlayers;
     bool _isRoundContinues;
+    bool _wasRunned;
 };

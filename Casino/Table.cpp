@@ -12,6 +12,7 @@ Table::Table(std::shared_ptr<Server> server) : _shoeDeck{ShoeDeck(consts::shoeDe
     _maxPlayers = consts::maxPlayersPerTable;
     _server = std::move(server);
     _roundNumber = 0;
+    _wasRunned = false;
 }
 
 void Table::addPlayer(Player p, int fd) {
@@ -38,6 +39,10 @@ bool Table::isFreeSpace() {
     return ((_players.size() + _waitingPlayers.size()) < _maxPlayers);
 }
 
+bool Table::wasRunned() {
+    return _wasRunned;
+}
+
 void Table::throwAwayPreviousCards() {
     for (auto& pl : _players) {
         if (pl.second.getCardsAmount() > 0)
@@ -52,33 +57,42 @@ void Table::callDelay() {
     std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 750));
 }
 
-std::string Table::getPlayerResult(Player& pl) {
+std::string Table::getPlayerResultAndSend(Player& pl, int fd) {
     std::stringstream ss;
+    int wonPoints;
 
     if (pl.getCardsSum() <= 21) {
         if (_croupier.getCardsSum() <= 21) {
             if (pl.getCardsSum() > _croupier.getCardsSum()) {
                 ss <<  "You win your bet x2: " << pl.getBet() << std::endl;
                 pl.setBalance(pl.getBalance() + 2 * pl.getBet());
+
+                wonPoints = pl.getBet() * 2;
             }
             else if (pl.getCardsSum() < _croupier.getCardsSum()) {
                 ss << "You lost your bet: " << pl.getBet() << std::endl;
                 // do nothing cause player already gave his bet to casino
+                wonPoints = 0;
             }
             else {
                 ss << "Tie with croupier. You keep your bet " << pl.getBet() << std::endl;
                 pl.setBalance(pl.getBalance() + pl.getBet());
+                wonPoints = pl.getBet();
             }
         }
         else {
             ss <<  "You win your bet x2: " << pl.getBet() << std::endl;
             pl.setBalance(pl.getBalance() + 2 * pl.getBet());
+            wonPoints = pl.getBet() * 2;
         }
     }
     else {
         ss << "You lost your bet: " << pl.getBet() << std::endl;
         // do nothing cause player already gave his bet to casino
+        wonPoints = 0;
     }
+
+    _server->sendMessage(fd, std::to_string(wonPoints));
 
     return ss.str();
 }
@@ -321,7 +335,9 @@ void Table::startRound() {
 
     for (auto& pl : _players) {
         _server->getReply(pl.first); // this because 2 replies can't be byside
-        std::string result = getPlayerResult(pl.second);
+        std::string result = getPlayerResultAndSend(pl.second, pl.first);
+
+        _server->getReply(pl.first);
 
         callDelay();
         _server->sendMessage(pl.first, result); // <11> message TO player
@@ -331,9 +347,12 @@ void Table::startRound() {
         _server->getReply(p.first); // temp
     }
 
+    // in the end of round check if player disconnected
     for (auto pl = _players.cbegin(); pl != _players.cend();) {
-        if ((*pl).second.getBalance() == 0)
+        if ((*pl).second.getBalance() == 0) {
+            _server->closeConnection((*pl).first);
             _players.erase(pl++);
+        }
         else
             ++pl;
     }
@@ -345,15 +364,18 @@ void Table::printLog(const std::string& msg) {
 
 void Table::run() {
     printLog("run()");
+    _wasRunned = true;
 
     while(true) {
         // TODO: if player has no balance
-        // main logic of round here
-        printLog("start of round");
-        _isRoundContinues = true;
-        startRound();
-        _isRoundContinues = false;
-        printLog("end of round");
+        if (!this->isTableEmpty()) {
+            // main logic of round here
+            printLog("start of round");
+            _isRoundContinues = true;
+            startRound();
+            _isRoundContinues = false;
+            printLog("end of round");
+        }
         
         // if there are waiting players - time to add them to actual players
         if (_waitingPlayers.size() > 0) {
@@ -366,12 +388,21 @@ void Table::run() {
             _waitingPlayers.clear();
         }
 
-        // now let new players connect if needed 
+        // now let new players connect for delay time
         if (_players.size() < _maxPlayers) {
-            _isRoundContinues = false;
-            printLog("waiting for new players...");
-            callDelay();
-            _isRoundContinues = true;
+            if (_players.size() == 0) {
+                while(_players.size()==0) {
+                    _isRoundContinues = false;
+                    printLog("waiting for new players...");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 3000));
+                }
+            }
+            else {
+                _isRoundContinues = false;
+                printLog("waiting for new players...");
+                std::this_thread::sleep_for(std::chrono::milliseconds(consts::waitingSeconds * 3000));
+                _isRoundContinues = true;
+            }
         }
     }
 }

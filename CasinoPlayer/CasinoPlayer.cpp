@@ -26,13 +26,17 @@ void CasinoPlayer::run() {
         printReply(); // get your balance msg
         _client.sendMessage("t0");
 
-
         // get start round and bet info
         printReply();
 
         // get bet info
         int bet;
         std::cin >> bet;
+        while(bet > _player.getBalance()) {
+            std::cout << "Your balance: " << _player.getBalance() << "$ is less" << std::endl;
+            std::cout << "Enter right bet: ";
+            std::cin >> bet;
+        }
         _player.setBet(bet);
         _player.setBalance(_player.getBalance() - bet);
 
@@ -85,12 +89,17 @@ void CasinoPlayer::run() {
         _client.sendMessage("t7"); // this because 2 replies can't be byside
         std::cout << _client.getReply(); // <10> message    
 
+        // get winnings
+        _client.sendMessage("t8");
+        int winnings = stoi(_client.getReply());
+        _player.setBalance(_player.getBalance() + winnings);
+
         // get actual results
-        _client.sendMessage("t8"); // this because 2 replies can't be byside
+        _client.sendMessage("t9"); // this because 2 replies can't be byside
         std::cout << _client.getReply(); // <11> message    
 
 
-        _client.sendMessage("t9"); // this because 2 replies can't be byside
+        _client.sendMessage("t10"); // this because 2 replies can't be byside
     }
 
     if (_player.getBalance() == 0) {
