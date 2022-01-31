@@ -1,5 +1,8 @@
 #include "Table.hpp"
 
+
+std::mutex addPlayerMutex;
+std::mutex addWaitPlayerMutex;
 int Table::_roundCounter = 1;
 
 Table::Table(std::shared_ptr<Server> server) : _shoeDeck{ShoeDeck(consts::shoeDecks)} {
@@ -14,33 +17,29 @@ Table::Table(std::shared_ptr<Server> server) : _shoeDeck{ShoeDeck(consts::shoeDe
 
 void Table::addPlayer(Player p, int fd) {
     printLog("Adding player " + p.getName());
-    const std::lock_guard<std::mutex> lock(addWaitPlayerMutex);
+    //const std::lock_guard<std::mutex> lock(addWaitPlayerMutex);
     _players.insert({fd, p});
 }
 
 void Table::addWaitingPlayer(Player p, int fd) {
     printLog("Adding waiting player " + p.getName());
-    const std::lock_guard<std::mutex> lock(addPlayerMutex);
+    //const std::lock_guard<std::mutex> lock(addPlayerMutex);
     _waitingPlayers.insert({fd, p});
 }
 
 bool Table::isRoundContinues() {
-    const std::lock_guard<std::mutex> lock(mutexRoundContinues);
     return _isRoundContinues;
 }
 
 bool Table::isTableEmpty() {
-    const std::lock_guard<std::mutex> lock(mutexTableEmpty);
     return _players.empty();
 }
 
 bool Table::isFreeSpace() {
-    const std::lock_guard<std::mutex> lock(mutexFreeSpace);
     return ((_players.size() + _waitingPlayers.size()) < _maxPlayers);
 }
 
 bool Table::wasRunned() {
-    const std::lock_guard<std::mutex> lock(mutexWasRunned);
     return _wasRunned;
 }
 
