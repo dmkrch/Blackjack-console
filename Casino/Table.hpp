@@ -29,6 +29,13 @@ public:
     bool wasRunned();
 
 private:
+    std::mutex addPlayerMutex;
+    std::mutex addWaitPlayerMutex;
+    std::mutex mutexFreeSpace; 
+    std::mutex mutexWasRunned; 
+    std::mutex mutexTableEmpty; 
+    std::mutex mutexRoundContinues; 
+
     ShoeDeck _shoeDeck;
     
     void startRound();
