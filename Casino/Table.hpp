@@ -17,6 +17,7 @@
 class Table {
 public:
     Table(std::shared_ptr<Server> server);
+    Table(const Table &other);
     
     void run();
 
@@ -29,8 +30,6 @@ public:
     bool wasRunned();
 
 private:
-    ShoeDeck _shoeDeck;
-    
     void startRound();
     void printLog(const std::string& msg);
     void sendMsgToAllPlayers(std::string msg);
@@ -43,6 +42,16 @@ private:
     void callDelay();
 
     std::string getPlayerResultAndSend(Player& pl1, int fd);
+
+private:
+    std::mutex addPlayerMutex;
+    std::mutex addWaitPlayerMutex;
+    std::mutex mutexFreeSpace; 
+    std::mutex mutexWasRunned; 
+    std::mutex mutexTableEmpty; 
+    std::mutex mutexRoundContinues; 
+
+    ShoeDeck _shoeDeck;
 
     std::shared_ptr<Server> _server;
     std::map<int, Player> _players;
